@@ -1,4 +1,4 @@
-baseURL = "http://localhost:1313/"
+baseURL = "https://orerus.github.io/"
 languageCode = "ja-JA"
 title = "Nanananananana's New Hugo Site"
 description = "a Blog by Jeremiah Succeed"
