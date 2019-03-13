@@ -26,7 +26,8 @@ jobs:
       - run:
           name: push to master
           command: |
-              hugo
+              git submodule update --init --recursive --remote
+              hugo --theme=onepress
               git config --global user.email "raisuta@gmail.com"
               git config --global user.name "orerus"
               git clone https://github.com/orerus/orerus.github.io.git
