@@ -1,6 +1,7 @@
 backend:
   name: github
   repo: orerus/orerus.github.io # GitHubのリポジトリ　「https://github.com/」の後ろの部分
+  base_url: https://orerus.github.io
 media_folder: "static"
 public_folder: "/public"
 collections:
