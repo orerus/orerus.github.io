@@ -1,0 +1,414 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8" />
+    <title>Making your first Phaser 3 Game - Part 1</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.22.0/dist/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+class TitleScene extends Phaser.Scene {
+    constructor ()
+    {
+        super('Title');
+        this.titleText = null;
+        this.easyText = null;
+        this.normalText = null;
+        this.hardText = null;
+        // this.cursors = null;
+    }
+
+    preload ()
+    {
+    }
+
+    create ()
+    {
+        this.titleText = this.add.text(400, 200, 'Title', { fontSize: '32px', fill: '#fff' }).setOrigin(0.5);
+        this.easyText = this.add.text(400, 300, '↑： Easy', { fontSize: '32px', fill: '#fff' }).setOrigin(0.5);
+        this.normalText = this.add.text(400, 350, '→： Normal', { fontSize: '32px', fill: '#fff' }).setOrigin(0.5);
+        // this.hardText = this.add.text(400, 416, '↓： Hard', { fontSize: '32px', fill: '#000' }).setOrigin(0.5);
+        // this.cursors = this.input.keyboard.createCursorKeys();
+
+        // let spaceKey = game.input.keyboard.addKey(
+        //             Phaser.Keyboard.SPACEBAR);
+        // spaceKey.onDown.add(this.jump, this);     
+        // Create the left/right arrow keys
+        var up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
+        up.on('down', () => this.nextEasy());
+        var right = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+        right.on('down', () => this.nextNormal());
+        // let down = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
+        // down.onDown.add(this.nextHard, this);
+        // let spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        // //  Phase 1: Key event.
+        // //  Emits only when the SPACE BAR is pressed down, and dispatches from the local Key object.
+        // //  Call stopImmediatePropagation to stop it reaching the two global handlers in this Scene.
+        // //  Call stopPropagation to stop it reaching any other Scene.
+
+        // spaceKey.on('down', function (key, event) {
+
+        //     // event.stopPropagation();
+        //     // event.stopImmediatePropagation();
+
+        //     bubble1.setVisible(true);
+
+        // });
+    }
+
+    update () {
+
+    }
+
+    // gameMode 0: easy, 1: normal, 2: hard
+    nextEasy() {
+        this.scene.start('Game', {gameMode: 0});
+    }
+    nextNormal() {
+        this.scene.start('Game', {gameMode: 1});
+    }
+    nextHard() {
+        this.scene.start('Game', {gameMode: 2});
+    }
+}
+
+class GameScene extends Phaser.Scene {
+    constructor ()
+    {
+        super('Game');
+        this.own = {};
+        this.own.enemies = {};
+        this.own.move = 0;
+        this.own.playerHeight = 324;
+        this.own.worldMinX = 0;
+        this.own.worldMaxX = 800;
+        this.own.worldMinY = 425 - this.own.playerHeight;
+        this.own.worldMaxY = 510 + this.own.playerHeight;
+        this.own.enemyInitY = 420;//(this.own.worldMaxY); //+ this.own.worldMinY) / 2;
+        this.own.worldDistanceY = this.own.worldMaxY - this.own.worldMinY - this.own.playerHeight;
+        this.own.worldHalfDistanceY = 30; //this.own.worldDistanceY / 2;
+        this.own.cursors = null;
+        this.own.player = null;
+        this.own.playerSpeed = 300;
+        this.own.remainTime = 10000;
+        this.own.remainText = null;
+        this.own.coronaPoint = -1;
+        this.own.debug = true; // DEBUG MODE
+    }
+
+    preload ()
+    {
+        this.load.multiatlas('cityscene', 'assets/cityscene.json', 'assets');
+    }
+
+    create (data)
+    {
+        // TODO DEBUG
+        if(this.own.debug) window.console.log('現在のゲームモード: ' + data.gameMode);
+
+        this.cameras.main.setBounds(0, 0, 800 * 4, 600);
+        // this.physics.world.setBounds(worldMinX, worldMinY, worldMaxX, worldMaxY);
+        this.physics.world.setBounds(0, 260, 800 * 4, 250);
+        this.cameras.main.setDeadzone(100, 20);
+        // this.cameras.main.setZoom(1.3);
+
+        let background = this.add.sprite(0, 0, 'cityscene', 'background.png');
+        this.add.sprite(800, 0, 'cityscene', 'background.png');
+        this.add.sprite(1600, 0, 'cityscene', 'background.png');
+        this.add.sprite(2400, 0, 'cityscene', 'background.png');
+
+        this.own.player = this.physics.add.sprite(0, 450, 'cityscene', 'capguy/walk/0001.png');
+        this.own.player.setScale(0.5, 0.5);
+        this.own.player.setCollideWorldBounds(true);
+        this.cameras.main.startFollow(this.own.player, true);
+
+        for (var i = 0; i < 3; i++) {
+            let enemyInitX = 500 * (i + 1);
+            this.own.enemies[i] = this.physics.add.sprite(enemyInitX, this.own.enemyInitY, 'cityscene', 'enemy/walk/0001.png');
+            this.own.enemies[i].own = {};
+            this.own.enemies[i].own.enemyInitX = enemyInitX;
+            this.own.enemies[i].own.isCorona = true;
+            this.own.enemies[i].own.isInfected = false;
+            this.own.enemies[i].setScale(0.5, 0.5);
+        }
+
+        var walkframeNames = this.anims.generateFrameNames('cityscene', {
+            start: 1, end: 8, zeroPad: 4,
+            prefix: 'capguy/walk/', suffix: '.png'
+        });
+        this.anims.create({ key: 'walk', frames: walkframeNames, frameRate: 10, repeat: -1 });
+        var stayframeNames = this.anims.generateFrameNames('cityscene', {
+            start: 4, end: 4, zeroPad: 4,
+            prefix: 'capguy/walk/', suffix: '.png'
+        });
+        this.anims.create({ key: 'stay', frames: stayframeNames, frameRate: 10, repeat: -1 });
+        var enemyWalkframeNames = this.anims.generateFrameNames('cityscene', {
+            start: 1, end: 8, zeroPad: 4,
+            prefix: 'enemy/walk/', suffix: '.png'
+        });
+        this.anims.create({ key: 'enemyWalk', frames: enemyWalkframeNames, frameRate: 10, repeat: -1 });
+        var enemyStayframeNames = this.anims.generateFrameNames('cityscene', {
+            start: 4, end: 4, zeroPad: 4,
+            prefix: 'enemy/walk/', suffix: '.png'
+        });
+        this.anims.create({ key: 'enemyStay', frames: enemyStayframeNames, frameRate: 10, repeat: -1 });
+
+        this.own.cursors = this.input.keyboard.createCursorKeys();
+        // TODO DEBUG
+        if (this.own.debug) {
+            this.own.remainText = this.add.text(32, 32).setScrollFactor(0).setFontSize(32).setColor('#000000');
+            this.own.remainText.setText('CoronaPoint: ' + this.own.coronaPoint);
+        }
+    }
+
+    update () {
+        this.own.player.setVelocity(0);
+        // カーソル
+        if (this.own.cursors.left.isDown)
+        {
+            this.own.player.setVelocityX(-this.own.playerSpeed);
+            this.own.player.flipX = true;
+            this.own.player.anims.play('walk', true);
+        }
+        if (this.own.cursors.right.isDown)
+        {
+            this.own.player.setVelocityX(this.own.playerSpeed);
+            this.own.player.flipX = false;
+            this.own.player.anims.play('walk', true);
+        }
+        if (this.own.cursors.up.isDown)
+        {
+            this.own.player.setVelocityY(-this.own.playerSpeed);
+            this.own.player.anims.play('walk', true);
+        }
+        if (this.own.cursors.down.isDown)
+        {
+            this.own.player.setVelocityY(this.own.playerSpeed);
+            this.own.player.anims.play('walk', true);
+        }
+        if (!this.own.cursors.left.isDown && !this.own.cursors.right.isDown && !this.own.cursors.up.isDown && !this.own.cursors.down.isDown) {
+            this.own.player.anims.play('stay', true);
+        }
+
+        // depth sorting
+        this.own.player.depth = this.own.player.y;
+
+        // enemy
+        for (var i = 0; i < 3; i++) {
+            this.own.enemies[i].setVelocity(0);
+            switch (i) {
+            case 0:
+                this.own.enemies[i].setVelocityX(Math.cos(this.own.move) * this.own.worldHalfDistanceY);
+                // this.own.enemies[i].x = this.own.enemyInitY + Math.cos(this.own.move) * this.own.worldHalfDistanceY;
+                this.own.enemies[i].setVelocityY(Math.sin(this.own.move) * this.own.worldHalfDistanceY);
+                // this.own.enemies[i].y = this.own.enemies[i].own.enemyInitX + Math.sin(this.own.move) * this.own.worldHalfDistanceY;
+                break;
+            case 1:
+                this.own.enemies[i].setVelocityX(Math.sin(-this.own.move) * this.own.worldHalfDistanceY);
+                // this.own.enemies[i].x = this.own.enemyInitY + Math.sin(-this.own.move) * this.own.worldHalfDistanceY;
+                this.own.enemies[i].setVelocityY(Math.cos(-this.own.move) * this.own.worldHalfDistanceY);
+                // this.own.enemies[i].y = this.own.enemies[i].own.enemyInitX + Math.cos(-this.own.move) * this.own.worldHalfDistanceY;
+            case 2:
+                this.own.enemies[i].setVelocityY(Math.sin(this.own.move) * (this.own.worldHalfDistanceY));
+                // this.own.enemies[i].y = this.own.enemies[i].own.enemyInitX + Math.sin(this.own.move) * (this.own.worldHalfDistanceY - 20);
+                break;
+            default:
+                console.log('Sorry, we are out of ' + i + '.');
+            }
+            if (this.own.enemies[i].body.velocity.x > 0) {
+                this.own.enemies[i].flipX = false
+            } else if (this.own.enemies[i].body.velocity.x < 0) {
+                this.own.enemies[i].flipX = true
+            }
+            if (this.own.enemies[i].body.velocity.x === 0 && this.own.enemies[i].body.velocity.y === 0) {
+                this.own.enemies[i].anims.play('enemyStay', true);
+            } else {
+                this.own.enemies[i].anims.play('enemyWalk', true);
+            }
+            this.own.enemies[i].depth = this.own.enemies[i].y;
+
+            // playerとの当たり判定
+            if (this.own.enemies[i].own.isCorona && !this.own.enemies[i].own.isInfected) {
+                // if (Math.pow(Math.abs(this.own.enemies[i].x - this.own.player.x), 2) + Math.pow(Math.abs(this.own.enemies[i].y - this.own.player.y), 2) < 2500) {
+                if (Math.abs(this.own.enemies[i].x - this.own.player.x) < 50 && Math.abs(this.own.enemies[i].y - this.own.player.y) < 20) {
+                    this.own.enemies[i].own.isInfected = true;
+                    this.own.coronaPoint += 1;
+                }
+            }
+        }
+        // console.log('Math.abs(this.own.enemies[i].x - this.own.player.x):' + Math.abs(this.own.enemies[1].x - this.own.player.x) + ' Math.abs(this.own.enemies[i].y - this.own.player.y) : ' + Math.abs(this.own.enemies[1].y - this.own.player.y));
+        // console.log('Math.abs(this.own.enemies[i].x - this.own.player.x):' + Math.abs(this.own.enemies[1].x - this.own.player.x) + ' Math.abs(this.own.enemies[i].y - this.own.player.y) : ' + Math.abs(this.own.enemies[1].y - this.own.player.y));
+        if (this.own.debug) {
+            this.own.remainText.setText('CoronaPoint: ' + this.own.coronaPoint);
+        }
+        this.own.move += 0.01;
+    }
+}
+
+    var config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 600,
+        physics: {
+            default: 'arcade',
+            arcade: {
+                // gravity: { y: 300 },
+                debug: false
+            }
+        },
+        // scene: {
+        //     preload: preload,
+        //     create: create,
+        //     update: update
+        // }
+        scene: [ TitleScene, GameScene ]
+    };
+
+    var game = new Phaser.Game(config);
+    // var playerHeight = 324;
+    // var worldMinX = 0;
+    // var worldMaxX = 800;
+    // var worldMinY = 425 + playerHeight;
+    // var worldMaxY = 510 + playerHeight;
+    // var cursors;
+    // var player;
+    // var playerSpeed = 300;
+    // var remainTime = 10000;
+    // var remainText;
+
+    // function preload ()
+    // {
+    //     this.load.multiatlas('cityscene', 'assets/cityscene.json', 'assets');
+    // }
+
+    // function create ()
+    // {
+    //     this.cameras.main.setBounds(0, 0, 800 * 4, 600);
+    //     // this.physics.world.setBounds(worldMinX, worldMinY, worldMaxX, worldMaxY);
+    //     this.physics.world.setBounds(0, 260, 800 * 4, 250);
+    //     this.cameras.main.setDeadzone(100, 20);
+    //     // this.cameras.main.setZoom(1.3);
+
+    //     var background = this.add.sprite(0, 0, 'cityscene', 'background.png');
+    //     this.add.sprite(800, 0, 'cityscene', 'background.png');
+    //     this.add.sprite(1600, 0, 'cityscene', 'background.png');
+    //     this.add.sprite(2400, 0, 'cityscene', 'background.png');
+
+    //     player = this.physics.add.sprite(0, 450, 'cityscene', 'capguy/walk/0001.png');
+    //     player.setScale(0.5, 0.5);
+    //     player.setCollideWorldBounds(true);
+    //     this.cameras.main.startFollow(player, true);
+
+    //     var walkframeNames = this.anims.generateFrameNames('cityscene', {
+    //         start: 1, end: 8, zeroPad: 4,
+    //         prefix: 'capguy/walk/', suffix: '.png'
+    //     });
+    //     this.anims.create({ key: 'walk', frames: walkframeNames, frameRate: 10, repeat: -1 });
+    //     var stayframeNames = this.anims.generateFrameNames('cityscene', {
+    //         start: 4, end: 4, zeroPad: 4,
+    //         prefix: 'capguy/walk/', suffix: '.png'
+    //     });
+    //     this.anims.create({ key: 'stay', frames: stayframeNames, frameRate: 10, repeat: -1 });
+
+    //     cursors = this.input.keyboard.createCursorKeys();
+
+    //     remainText = this.add.text(32, 32).setScrollFactor(0).setFontSize(32).setColor('#000000');
+    // }
+
+    // function update(time, delta)
+    // {
+    //     // sample
+    //     // player.x += delta/8;
+    //     // if(player.x > 800)
+    //     // {
+    //     //     player.x = -50;
+    //     // }
+
+    //     player.setVelocity(0);
+    //     // カーソル
+    //     // TODO 斜め
+    //     if (cursors.left.isDown)
+    //     {
+    //         player.setVelocityX(-playerSpeed);
+    //         player.flipX = true;
+    //         player.anims.play('walk', true);
+    //     }
+    //     else if (cursors.right.isDown)
+    //     {
+    //         player.setVelocityX(playerSpeed);
+    //         player.flipX = false;
+    //         player.anims.play('walk', true);
+    //     }
+    //     if (cursors.up.isDown)
+    //     {
+    //         player.setVelocityY(-playerSpeed);
+    //         player.anims.play('walk', true);
+    //     }
+    //     else if (cursors.down.isDown)
+    //     {
+    //         player.setVelocityY(playerSpeed);
+    //         player.anims.play('walk', true);
+    //     }
+    //     if (!cursors.left.isDown && !cursors.right.isDown && !cursors.up.isDown && !cursors.down.isDown) {
+    //         player.anims.play('stay', true);
+    //     }
+
+    //     // depth sorting
+    //     player.depth = player.y;
+    // }
+
+    // function collectStar (player, star)
+    // {
+    //     star.disableBody(true, true);
+
+    //     score += 10;
+    //     scoreText.setText('Score: ' + score);
+    //     remainTime += 50;
+
+    //     if (stars.countActive(true) === 0)
+    //     {
+    //         stars.children.iterate(function (child) {
+
+    //             child.enableBody(true, child.x, 0, true, true);
+
+    //         });
+
+    //         var x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+
+    //         var bomb = bombs.create(x, 16, 'bomb');
+    //         bomb.setBounce(1);
+    //         bomb.setCollideWorldBounds(true);
+    //         bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+
+    //     }
+    // }
+
+    // function hitBomb (player, bomb)
+    // {
+    //     this.physics.pause();
+
+    //     player.setTint(0xff0000);
+
+    //     player.anims.play('turn');
+
+    //     gameOver = true;
+    // }
+
+    // function toGameOver() {
+    //     // this.physics.pause();
+
+    //     player.setTint(0xff0000);
+
+    //     player.anims.play('turn');
+    // }
+</script>
+
+</body>
+</html>
