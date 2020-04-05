@@ -232,26 +232,28 @@ class GameScene extends Phaser.Scene {
         {
             this.own.player.setVelocityX(-this.own.playerSpeed);
             this.own.player.flipX = true;
-            this.own.player.anims.play('walk', true);
+            // this.own.player.anims.play('walk', true);
         }
         if (this.own.cursors.right.isDown || isRightDown)
         {
             this.own.player.setVelocityX(this.own.playerSpeed);
             this.own.player.flipX = false;
-            this.own.player.anims.play('walk', true);
+            // this.own.player.anims.play('walk', true);
         }
         if (this.own.cursors.up.isDown || isUpDown)
         {
             this.own.player.setVelocityY(-this.own.playerSpeed);
-            this.own.player.anims.play('walk', true);
+            // this.own.player.anims.play('walk', true);
         }
         if (this.own.cursors.down.isDown || isDownDown)
         {
             this.own.player.setVelocityY(this.own.playerSpeed);
-            this.own.player.anims.play('walk', true);
+            // this.own.player.anims.play('walk', true);
         }
-        if (!this.own.cursors.left.isDown && !this.own.cursors.right.isDown && !this.own.cursors.up.isDown && !this.own.cursors.down.isDown || !(isLeftDown || isRightDown || isUpDown || isDownDown)) {
+        if ((!this.own.cursors.left.isDown && !this.own.cursors.right.isDown && !this.own.cursors.up.isDown && !this.own.cursors.down.isDown) && !(isLeftDown || isRightDown || isUpDown || isDownDown)) {
             this.own.player.anims.play('stay', true);
+        } else {
+            this.own.player.anims.play('walk', true);
         }
 
         // depth sorting
