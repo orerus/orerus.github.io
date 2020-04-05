@@ -46,7 +46,7 @@ var hitSneezeRangeY = queries.hitSneezeRangeY ? Number(queries.hitSneezeRangeY) 
 // direction:   left/right          初期向き (moveTypeが3の場合のみ反映)
 // speed:       0 <= speed <= 1000  スピード (300が主人公の速度, moveTypeが3の場合のみ反映)
 // moveType:    0, 1, 2, 3          0: 円, 1: 斜め, 2: 上下, 3: 左右
-// sneezeRate:  0 <= sneezeRate <= 10000    くしゃみをする確率（0 ~ 30 くらいが適正）
+// sneezeRate:  0 <= sneezeRate <= 10000    くしゃみをする確率（0 ~ 30 くらいが適正。1フレームあたり sneezeRate/10000 の確率でくしゃみをする。）
 var enemyParameters = [
     {
         isCorona: true,
@@ -119,10 +119,37 @@ function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
 
+class LoaderScene extends Phaser.Scene {
+    constructor ()
+    {
+        super({ key: 'LoaderScene' });
+    }
+
+    preload ()
+    {
+        // ここで全ての必要なimageをloadする
+        this.load.multiatlas('cityscene', 'assets/cityscene.json', 'assets');
+    }
+
+    create ()
+    {
+        // console.log('From LoaderScene Create');
+        this.scene.start('TitleScene');
+    }
+
+    update () {
+        // this.scene.start('TitleScene');
+    }
+}
+
 class TitleScene extends Phaser.Scene {
     constructor ()
     {
-        super('Title');
+        super({ key: 'TitleScene' });
+    }
+
+    preload ()
+    {
         this.titleText = null;
         this.easyText = null;
         this.normalText = null;
@@ -132,12 +159,10 @@ class TitleScene extends Phaser.Scene {
         this.isDismissed = false;
     }
 
-    preload ()
-    {
-    }
-
     create ()
     {
+        // console.log('From TitleScene Create');
+        this.isDismissed = false;
         this.titleText = this.add.text(400, 150, 'Title', { fontSize: '48px', fill: '#fff' }).setOrigin(0.5);
         this.easyText = this.add.text(400, 300, '↑： Easy', { fontSize: '48px', fill: '#fff' }).setOrigin(0.5);
         this.normalText = this.add.text(400, 400, '→： Normal', { fontSize: '48px', fill: '#fff' }).setOrigin(0.5);
@@ -174,6 +199,8 @@ class TitleScene extends Phaser.Scene {
     }
 
     update () {
+        // console.log('From TitleScene Update');
+
         this.pointer = this.input.activePointer;
         // pointerがモードを選択しているかどうか
         if (this.pointer.isDown && !this.isDismissed) {
@@ -204,20 +231,26 @@ class TitleScene extends Phaser.Scene {
 
     // gameMode 0: easy, 1: normal, 2: hard
     nextEasy() {
-        this.scene.start('Game', {gameMode: 0});
+        this.physics.pause();
+        this.scene.start('GameScene', {gameMode: 0});
     }
     nextNormal() {
-        this.scene.start('Game', {gameMode: 1});
+        this.physics.pause();
+        this.scene.start('GameScene', {gameMode: 1});
     }
     nextHard() {
-        this.scene.start('Game', {gameMode: 2});
+        this.scene.start('GameScene', {gameMode: 2});
     }
 }
 
 class GameScene extends Phaser.Scene {
     constructor ()
     {
-        super('Game');
+        super({ key: 'GameScene' });
+    }
+
+    preload ()
+    {
         this.own = {};
         this.own.isEasy = false;
         this.own.enemies = {};
@@ -233,7 +266,8 @@ class GameScene extends Phaser.Scene {
         this.own.cursors = null;
         this.own.player = null;
         this.own.playerSpeed = 300;
-        this.own.remainTime = 10000;
+        this.own.remainTime = 500; // 初期残り時間
+        this.own.coronaPointText = null;
         this.own.remainText = null;
         this.own.coronaPoint = -1;
         this.own.pointerState = {};
@@ -241,15 +275,13 @@ class GameScene extends Phaser.Scene {
         this.own.pointerState.startX = 0;
         this.own.pointerState.startY = 0;
         this.own.debug = true; // DEBUG MODE
-    }
-
-    preload ()
-    {
-        this.load.multiatlas('cityscene', 'assets/cityscene.json', 'assets');
+        this.isDismissed = false;
     }
 
     create (data)
     {
+        // this.events.once("shutdown", () => this.shutdown());
+        // console.log('From GameScene Create');
         // TODO DEBUG
         if(this.own.debug) window.console.log('現在のゲームモード: ' + data.gameMode);
         this.own.isEasy = (data.gameMode === 0);
@@ -312,14 +344,17 @@ class GameScene extends Phaser.Scene {
         this.anims.create({ key: 'enemyStay', frames: enemyStayframeNames, frameRate: 10, repeat: -1 });
 
         this.own.cursors = this.input.keyboard.createCursorKeys();
-        // TODO DEBUG
+        // テキスト配置
         if (this.own.debug) {
-            this.own.remainText = this.add.text(32, 32).setScrollFactor(0).setFontSize(32).setColor('#000000');
-            this.own.remainText.setText('CoronaPoint: ' + this.own.coronaPoint);
+            this.own.coronaPointText = this.add.text(32, 32).setScrollFactor(0).setFontSize(32).setColor('#000000');
+            this.own.coronaPointText.setText('CoronaPoint: ' + this.own.coronaPoint);
         }
+        this.own.remainText = this.add.text(600, 32).setScrollFactor(0).setFontSize(32).setColor('#000000');
+        this.own.remainText.setText('Time: ' + this.own.remainTime);
     }
 
     update () {
+        // console.log('From GameScene Update');
         // スワイプの動き（スマホ用）
         let pointer = this.input.activePointer;
         if (pointer.isDown && !this.own.pointerState.isDowning) {
@@ -468,9 +503,92 @@ class GameScene extends Phaser.Scene {
 
         // デバッグテキスト
         if (this.own.debug) {
-            this.own.remainText.setText('CoronaPoint: ' + this.own.coronaPoint);
+            this.own.coronaPointText.setText('CoronaPoint: ' + this.own.coronaPoint);
         }
+        this.own.remainTime -= 1;
+        this.own.remainText.setText('Time: ' + this.own.remainTime);
         this.own.move += 0.01;
+
+        // 残り時間判定
+        if (this.own.remainTime <= 0 && !this.isDismissed) {
+            this.isDismissed = true;
+            this.physics.pause();
+            this.scene.start('ResultScene', {coronaPoint: this.own.coronaPoint});
+        }
+    }
+
+    // shutdown() {
+    //     console.log('From GameScene shutdown');
+    //     this.game.anims.removeAllListeners();
+    // }
+}
+
+class ResultScene extends Phaser.Scene {
+    constructor ()
+    {
+        super({ key: 'ResultScene' });
+    }
+
+    preload ()
+    {
+        this.laterText = null;
+        this.laterRemainTime = 150;
+        this.laterBackground = null;
+        this.resultText = null;
+        this.retryText = null;
+        this.coronaPoint = 0;
+        this.isOpened = false;
+        this.cursors = null;
+        this.isDismissed = false;
+    }
+
+    create (data)
+    {
+        // console.log('From ResultScene Create');
+        this.coronaPoint = data.coronaPoint;
+        if (this.coronaPoint < 0) {
+            this.resultText = this.add.text(400, 150, 'Happy end!!!', { fontSize: '72px', fill: '#fff' }).setOrigin(0.5);
+        } else {
+            this.resultText = this.add.text(400, 150, 'Bad end・・・', { fontSize: '72px', fill: '#fff' }).setOrigin(0.5);
+        }
+        this.retryText = this.add.text(400, 400, '→： Retry', { fontSize: '48px', fill: '#fff' }).setOrigin(0.5);
+        this.laterBackground = this.add.rectangle(0, 0, 800, 600, 0x000000).setOrigin(0);
+        this.laterText = this.add.text(400, 150, '10 days later・・・', { fontSize: '48px', fill: '#fff' }).setOrigin(0.5);
+        this.cursors = this.input.keyboard.createCursorKeys();
+    }
+
+    update () {
+        // console.log('From ResultScene Update');
+        if (this.isDismissed) return;
+        if (!this.isOpened) {
+            this.laterRemainTime -= 1;
+
+            if (this.laterRemainTime <= 0) {
+                this.isOpened = true;
+                this.laterText.destroy();
+                this.laterBackground.destroy();
+            }
+        } else {
+            if (this.cursors.right.isDown)
+            {
+                this.nextTitle();
+            }
+            // スワイプの動き（スマホ用）
+            let pointer = this.input.activePointer;
+            if (pointer.isDown) {
+                let x = pointer.x;
+                let y = pointer.y;
+                if (!this.isDismissed && Math.abs(this.retryText.x - x) < this.retryText.displayWidth / 2 && Math.abs(this.retryText.y - y) < this.retryText.displayHeight / 2) {
+                    this.isDismissed = true;
+                    this.nextTitle();
+                }
+            }
+        }
+    }
+
+    nextTitle () {
+        this.physics.pause();
+        this.scene.start('TitleScene');
     }
 }
 
@@ -490,7 +608,7 @@ class GameScene extends Phaser.Scene {
         //     create: create,
         //     update: update
         // }
-        scene: [ TitleScene, GameScene ]
+        scene: [ LoaderScene, TitleScene, GameScene, ResultScene ]
     };
 
     var game = new Phaser.Game(config);
