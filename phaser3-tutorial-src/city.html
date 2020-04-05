@@ -27,6 +27,8 @@ class TitleScene extends Phaser.Scene {
         this.normalText = null;
         this.hardText = null;
         // this.cursors = null;
+        this.pointer = null;
+        this.isDismissed = false;
     }
 
     preload ()
@@ -65,10 +67,24 @@ class TitleScene extends Phaser.Scene {
         //     bubble1.setVisible(true);
 
         // });
+        this.pointer = this.input.activePointer;
+        console.log(`EasyTest ${this.easyText.x} ${this.easyText.y} ${this.easyText.displayWidth} ${this.easyText.displayHeight}`);
     }
 
     update () {
-
+        // pointerがモードを選択しているかどうか
+        if (this.pointer.isDown && !this.isDismissed) {
+            let x = this.pointer.x;
+            let y = this.pointer.y;
+            console.log(`Pointer ${this.pointer.x} ${this.pointer.y}`);
+            if (Math.abs(this.easyText.x - x) < this.easyText.displayWidth / 2 && Math.abs(this.easyText.y - y) < this.easyText.displayHeight / 2) {
+                this.isDismissed = true;
+                this.nextEasy();
+            } else if (Math.abs(this.normalText.x - x) < this.normalText.displayWidth / 2 && Math.abs(this.normalText.y - y) < this.normalText.displayHeight / 2) {
+                this.isDismissed = true;
+                this.nextNormal();
+            }
+        }
     }
 
     // gameMode 0: easy, 1: normal, 2: hard
