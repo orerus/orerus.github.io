@@ -9,6 +9,7 @@
             margin: 0;
         }
     </style>
+    <link rel=”shortcut icon” href=”favicon.ico” />
 </head>
 <body>
 
@@ -37,9 +38,9 @@ class TitleScene extends Phaser.Scene {
 
     create ()
     {
-        this.titleText = this.add.text(400, 200, 'Title', { fontSize: '32px', fill: '#fff' }).setOrigin(0.5);
-        this.easyText = this.add.text(400, 300, '↑： Easy', { fontSize: '32px', fill: '#fff' }).setOrigin(0.5);
-        this.normalText = this.add.text(400, 350, '→： Normal', { fontSize: '32px', fill: '#fff' }).setOrigin(0.5);
+        this.titleText = this.add.text(400, 150, 'Title', { fontSize: '48px', fill: '#fff' }).setOrigin(0.5);
+        this.easyText = this.add.text(400, 300, '↑： Easy', { fontSize: '48px', fill: '#fff' }).setOrigin(0.5);
+        this.normalText = this.add.text(400, 400, '→： Normal', { fontSize: '48px', fill: '#fff' }).setOrigin(0.5);
         // this.hardText = this.add.text(400, 416, '↓： Hard', { fontSize: '32px', fill: '#000' }).setOrigin(0.5);
         // this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -67,11 +68,13 @@ class TitleScene extends Phaser.Scene {
         //     bubble1.setVisible(true);
 
         // });
-        this.pointer = this.input.activePointer;
-        console.log(`EasyTest ${this.easyText.x} ${this.easyText.y} ${this.easyText.displayWidth} ${this.easyText.displayHeight}`);
+        // this.pointer = this.input.activePointer;
+        // console.log(`EasyTest ${this.easyText.x} ${this.easyText.y} ${this.easyText.displayWidth} ${this.easyText.displayHeight}`);
+        // this.text = this.add.text(10, 10, 'Move the mouse', { font: '16px Courier', fill: '#00ff00' });
     }
 
     update () {
+        this.pointer = this.input.activePointer;
         // pointerがモードを選択しているかどうか
         if (this.pointer.isDown && !this.isDismissed) {
             let x = this.pointer.x;
@@ -85,6 +88,18 @@ class TitleScene extends Phaser.Scene {
                 this.nextNormal();
             }
         }
+
+        // this.text.setText([
+        //     'x: ' + this.pointer.x,
+        //     'y: ' + this.pointer.y,
+        //     'mid x: ' + this.pointer.midPoint.x,
+        //     'mid y: ' + this.pointer.midPoint.y,
+        //     'velocity x: ' + this.pointer.velocity.x,
+        //     'velocity y: ' + this.pointer.velocity.y,
+        //     'movementX: ' + this.pointer.movementX,
+        //     'movementY: ' + this.pointer.movementY,
+        //     'isDown:' + this.pointer.isDown
+        // ]);
     }
 
     // gameMode 0: easy, 1: normal, 2: hard
@@ -121,6 +136,10 @@ class GameScene extends Phaser.Scene {
         this.own.remainTime = 10000;
         this.own.remainText = null;
         this.own.coronaPoint = -1;
+        this.own.pointerState = {};
+        this.own.pointerState.isDowning = false;
+        this.own.pointerState.startX = 0;
+        this.own.pointerState.startY = 0;
         this.own.debug = true; // DEBUG MODE
     }
 
@@ -194,31 +213,44 @@ class GameScene extends Phaser.Scene {
     }
 
     update () {
+        // スワイプの動き（スマホ用）
+        let pointer = this.input.activePointer;
+        if (pointer.isDown && !this.own.pointerState.isDowning) {
+            this.own.pointerState.isDowning = true;
+            this.own.pointerState.startX = pointer.x;
+            this.own.pointerState.startY = pointer.y;
+        }
+        if (!pointer.isDown) this.own.pointerState.isDowning = false;
+        let isLeftDown = pointer.isDown && pointer.x < this.own.pointerState.startX - 50;
+        let isRightDown = pointer.isDown && pointer.x > this.own.pointerState.startX + 50;
+        let isUpDown = pointer.isDown && pointer.y < this.own.pointerState.startY - 50;
+        let isDownDown = pointer.isDown && pointer.y > this.own.pointerState.startY + 50;
+
         this.own.player.setVelocity(0);
         // カーソル
-        if (this.own.cursors.left.isDown)
+        if (this.own.cursors.left.isDown || isLeftDown)
         {
             this.own.player.setVelocityX(-this.own.playerSpeed);
             this.own.player.flipX = true;
             this.own.player.anims.play('walk', true);
         }
-        if (this.own.cursors.right.isDown)
+        if (this.own.cursors.right.isDown || isRightDown)
         {
             this.own.player.setVelocityX(this.own.playerSpeed);
             this.own.player.flipX = false;
             this.own.player.anims.play('walk', true);
         }
-        if (this.own.cursors.up.isDown)
+        if (this.own.cursors.up.isDown || isUpDown)
         {
             this.own.player.setVelocityY(-this.own.playerSpeed);
             this.own.player.anims.play('walk', true);
         }
-        if (this.own.cursors.down.isDown)
+        if (this.own.cursors.down.isDown || isDownDown)
         {
             this.own.player.setVelocityY(this.own.playerSpeed);
             this.own.player.anims.play('walk', true);
         }
-        if (!this.own.cursors.left.isDown && !this.own.cursors.right.isDown && !this.own.cursors.up.isDown && !this.own.cursors.down.isDown) {
+        if (!this.own.cursors.left.isDown && !this.own.cursors.right.isDown && !this.own.cursors.up.isDown && !this.own.cursors.down.isDown || !(isLeftDown || isRightDown || isUpDown || isDownDown)) {
             this.own.player.anims.play('stay', true);
         }
 
