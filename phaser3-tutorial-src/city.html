@@ -14,6 +14,10 @@
 
 <script type="text/javascript">
 
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
+
 class TitleScene extends Phaser.Scene {
     constructor ()
     {
@@ -85,15 +89,16 @@ class GameScene extends Phaser.Scene {
         super('Game');
         this.own = {};
         this.own.enemies = {};
+        this.own.enemyCount = 12;
         this.own.move = 0;
-        this.own.playerHeight = 324;
+        this.own.playerHeight = 324 / 2; // scale 0.5で使う
         this.own.worldMinX = 0;
         this.own.worldMaxX = 800;
-        this.own.worldMinY = 425 - this.own.playerHeight;
-        this.own.worldMaxY = 510 + this.own.playerHeight;
-        this.own.enemyInitY = 420;//(this.own.worldMaxY); //+ this.own.worldMinY) / 2;
+        this.own.worldMinY = 422 - this.own.playerHeight;
+        this.own.worldMaxY = 600; //+ this.own.playerHeight;
+        this.own.enemyInitY = (this.own.worldMaxY + this.own.worldMinY + this.own.playerHeight) / 2 ;
         this.own.worldDistanceY = this.own.worldMaxY - this.own.worldMinY - this.own.playerHeight;
-        this.own.worldHalfDistanceY = 30; //this.own.worldDistanceY / 2;
+        this.own.worldHalfDistanceY = this.own.worldDistanceY / 2;
         this.own.cursors = null;
         this.own.player = null;
         this.own.playerSpeed = 300;
@@ -115,7 +120,7 @@ class GameScene extends Phaser.Scene {
 
         this.cameras.main.setBounds(0, 0, 800 * 4, 600);
         // this.physics.world.setBounds(worldMinX, worldMinY, worldMaxX, worldMaxY);
-        this.physics.world.setBounds(0, 260, 800 * 4, 250);
+        this.physics.world.setBounds(this.own.worldMinX, this.own.worldMinY, this.own.worldMaxX * 4, this.own.worldMaxY - this.own.worldMinY);
         this.cameras.main.setDeadzone(100, 20);
         // this.cameras.main.setZoom(1.3);
 
@@ -129,14 +134,18 @@ class GameScene extends Phaser.Scene {
         this.own.player.setCollideWorldBounds(true);
         this.cameras.main.startFollow(this.own.player, true);
 
-        for (var i = 0; i < 3; i++) {
-            let enemyInitX = 500 * (i + 1);
-            this.own.enemies[i] = this.physics.add.sprite(enemyInitX, this.own.enemyInitY, 'cityscene', 'enemy/walk/0001.png');
+        // 敵の初期配置
+        for (var i = 0; i < this.own.enemyCount; i++) {
+            let enemyInitX = 1600 + (getRandomInt(57) - 28) * 25;
+            var randomEnemyInitY = this.own.enemyInitY + getRandomInt(this.own.worldDistanceY) - this.own.worldHalfDistanceY;
+            if (i < 3) randomEnemyInitY = this.own.worldMinY + this.own.playerHeight;
+            this.own.enemies[i] = this.physics.add.sprite(enemyInitX, randomEnemyInitY, 'cityscene', 'enemy/walk/0001.png');
             this.own.enemies[i].own = {};
             this.own.enemies[i].own.enemyInitX = enemyInitX;
             this.own.enemies[i].own.isCorona = true;
             this.own.enemies[i].own.isInfected = false;
             this.own.enemies[i].setScale(0.5, 0.5);
+            this.own.enemies[i].flipX = !!getRandomInt(2)
         }
 
         var walkframeNames = this.anims.generateFrameNames('cityscene', {
@@ -201,23 +210,50 @@ class GameScene extends Phaser.Scene {
         this.own.player.depth = this.own.player.y;
 
         // enemy
-        for (var i = 0; i < 3; i++) {
+        for (var i = 0; i < this.own.enemyCount; i++) {
             this.own.enemies[i].setVelocity(0);
             switch (i) {
             case 0:
                 this.own.enemies[i].setVelocityX(Math.cos(this.own.move) * this.own.worldHalfDistanceY);
                 // this.own.enemies[i].x = this.own.enemyInitY + Math.cos(this.own.move) * this.own.worldHalfDistanceY;
                 this.own.enemies[i].setVelocityY(Math.sin(this.own.move) * this.own.worldHalfDistanceY);
+                // console.log(Math.sin(this.own.move))
                 // this.own.enemies[i].y = this.own.enemies[i].own.enemyInitX + Math.sin(this.own.move) * this.own.worldHalfDistanceY;
                 break;
             case 1:
                 this.own.enemies[i].setVelocityX(Math.sin(-this.own.move) * this.own.worldHalfDistanceY);
                 // this.own.enemies[i].x = this.own.enemyInitY + Math.sin(-this.own.move) * this.own.worldHalfDistanceY;
                 this.own.enemies[i].setVelocityY(Math.cos(-this.own.move) * this.own.worldHalfDistanceY);
+                // console.log(Math.cos(-this.own.move))
                 // this.own.enemies[i].y = this.own.enemies[i].own.enemyInitX + Math.cos(-this.own.move) * this.own.worldHalfDistanceY;
             case 2:
                 this.own.enemies[i].setVelocityY(Math.sin(this.own.move) * (this.own.worldHalfDistanceY));
                 // this.own.enemies[i].y = this.own.enemies[i].own.enemyInitX + Math.sin(this.own.move) * (this.own.worldHalfDistanceY - 20);
+                break;
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+                if (this.own.enemies[i].flipX) {
+                    // 左向き
+                    if (this.own.enemies[i].x > 200) {
+                        this.own.enemies[i].setVelocityX(-350);
+                    } else {
+                        this.own.enemies[i].setVelocityX(350);
+                    }
+                } else {
+                    // 右向き
+                    if (this.own.enemies[i].x < 3000) {
+                        this.own.enemies[i].setVelocityX(350);
+                    } else {
+                        this.own.enemies[i].setVelocityX(-350);
+                    }
+                }
                 break;
             default:
                 console.log('Sorry, we are out of ' + i + '.');
