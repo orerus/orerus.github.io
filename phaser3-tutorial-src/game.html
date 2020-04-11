@@ -36,7 +36,7 @@ var queries = getUrlQueries();
 /// Gameパラメーター /////////////////
 // 自キャラ設定 ///////////////////////////////
 // playerSpeed:         0 <= speed <= 1000  スピード
-var playerSpeed = 3000;
+var playerSpeed = 300;
 // 敵キャラ当たり判定設定 ///////////////////////
 var hitRangeX = queries.hitRangeX ? Number(queries.hitRangeX) : 50; // x座標のズレがこの値より小さければ当たり判定
 var hitRangeY = queries.hitRangeY ? Number(queries.hitRangeY) : 20; // y座標のズレがこの値より小さければ当たり判定
@@ -50,6 +50,7 @@ var hitSneezeRangeY = queries.hitSneezeRangeY ? Number(queries.hitSneezeRangeY) 
 // speed:       0 <= speed <= 1000  スピード (300が初期値, moveTypeが3の場合のみ反映)
 // moveType:    0, 1, 2, 3          0: 円, 1: 斜め, 2: 上下, 3: 左右
 // sneezeRate:  0 <= sneezeRate <= 10000    くしゃみをする確率（0 ~ 30 くらいが適正。1フレームあたり sneezeRate/10000 の確率でくしゃみをする。）
+// TODO くしゃみ範囲も決められるようにしたい
 var enemyParameters = [
     {
         isCorona: true,
@@ -58,7 +59,25 @@ var enemyParameters = [
         direction: 'right',
         speed: 350,
         moveType: 3,
-        sneezeRate: 10,
+        sneezeRate: 80,
+    },
+    {
+        isCorona: true,
+        x: 1200,
+        y: 450,
+        direction: 'right',
+        speed: 350,
+        moveType: 3,
+        sneezeRate: 80,
+    },
+    {
+        isCorona: true,
+        x: 2200,
+        y: 450,
+        direction: 'right',
+        speed: 350,
+        moveType: 3,
+        sneezeRate: 80,
     },
     {
         isCorona: true,
@@ -67,7 +86,7 @@ var enemyParameters = [
         direction: 'right',
         speed: 300,
         moveType: 3,
-        sneezeRate: 10,
+        sneezeRate: 50,
     },
     {
         isCorona: true,
@@ -76,7 +95,7 @@ var enemyParameters = [
         direction: 'right',
         speed: 250,
         moveType: 3,
-        sneezeRate: 10,
+        sneezeRate: 50,
     },
     {
         isCorona: true,
@@ -264,7 +283,7 @@ class GameScene extends Phaser.Scene {
         this.own.isEasy = false;
         this.own.enemies = {};
         this.own.move = 90 * (Math.PI / 180);
-        this.own.playerHeight = 324; // scale 0.5で使う
+        this.own.playerHeight = 324;
         this.own.worldMinX = 0;
         this.own.worldMaxX = 800;
         this.own.worldMinY = 430 - this.own.playerHeight;
@@ -315,6 +334,7 @@ class GameScene extends Phaser.Scene {
         this.cameras.main.startFollow(this.own.player, true);
         this.own.player.own = {};
         this.own.player.own.hasMask = false;
+        this.own.player.own.hasWashed = false;
 
         // 壁の当たり判定
         let homeWall = this.add.rectangle(
@@ -355,6 +375,26 @@ class GameScene extends Phaser.Scene {
         ).setAlpha(wallAlpha).setOrigin(0);
         this.physics.add.existing(maskWall, true);
         this.physics.add.collider(this.own.player, maskWall, () => this.hitMask());
+        // 手洗いゾーン
+        let washWall = this.add.rectangle(
+            260,
+            0, 
+            1, 
+            150, 
+            0x008000
+        ).setAlpha(wallAlpha).setOrigin(0);
+        this.physics.add.existing(washWall, true);
+        this.physics.add.collider(this.own.player, washWall, () => this.hitWash());
+        // Barゾーン
+        let barWall = this.add.rectangle(
+            3410,
+            0, 
+            10, 
+            600, 
+            0x008000
+        ).setAlpha(wallAlpha).setOrigin(0);
+        this.physics.add.existing(barWall, true);
+        this.physics.add.collider(this.own.player, barWall, () => this.hitDrinking());
 
         // Bar内の人物
         let woman = this.add.sprite(3535, 475, 'gamescene', 'chara/teki_d1_4.png').setScale(0.8);
@@ -382,11 +422,26 @@ class GameScene extends Phaser.Scene {
         }
 
         // アニメーション生成
+        var setDrinkingFrameNames = this.anims.generateFrameNames('gamescene', {
+            start: 1, end: 2, zeroPad: 1,
+            prefix: 'chara/main_a5_', suffix: '.png'
+        });
+        this.anims.create({ key: 'setDrinking', frames: setDrinkingFrameNames, frameRate: 10, repeat: 8 });
+        var setWashedFrameNames = this.anims.generateFrameNames('gamescene', {
+            start: 1, end: 2, zeroPad: 1,
+            prefix: 'chara/main_a4_', suffix: '.png'
+        });
+        this.anims.create({ key: 'setWashed', frames: setWashedFrameNames, frameRate: 10, repeat: 8 });
+        var setWashedWithMaskFrameNames = this.anims.generateFrameNames('gamescene', {
+            start: 3, end: 4, zeroPad: 1,
+            prefix: 'chara/main_a4_', suffix: '.png'
+        });
+        this.anims.create({ key: 'setWashedWithMask', frames: setWashedWithMaskFrameNames, frameRate: 10, repeat: 8 });
         var setMaskFrameNames = this.anims.generateFrameNames('gamescene', {
             start: 1, end: 8, zeroPad: 1,
             prefix: 'chara/main_a3_', suffix: '.png'
         });
-        this.anims.create({ key: 'setMask', frames: setMaskFrameNames, frameRate: 10, repeat: 2 });
+        this.anims.create({ key: 'setMask', frames: setMaskFrameNames, frameRate: 10, repeat: 1 });
         this.anims.create({ key: 'maskWalk', frames: setMaskFrameNames, frameRate: 10, repeat: -1 });
         var maskStayframeNames = this.anims.generateFrameNames('gamescene', {
             start: 4, end: 4, zeroPad: 1,
@@ -507,7 +562,7 @@ class GameScene extends Phaser.Scene {
                         }
                     } else {
                         // 右向き
-                        if (this.own.enemies[i].x < 3200) {
+                        if (this.own.enemies[i].x < 3000) {
                             this.own.enemies[i].setVelocityX(this.own.enemies[i].own.speed);
                         } else {
                             this.own.enemies[i].setVelocityX(-this.own.enemies[i].own.speed);
@@ -599,10 +654,34 @@ class GameScene extends Phaser.Scene {
         this.own.player.own.isStop = true;
         this.own.coronaPoint -= 1;
 
-        this.own.player.once('animationcomplete', this.setMaskAnimComplete, this);
+        this.own.player.once('animationcomplete', this.setAnimComplete, this);
     }
 
-    setMaskAnimComplete() {
+    hitWash() {
+        console.log('get Wash!!!');
+        if (!this.own.player.own.hasWashed) {
+            this.own.coronaPoint -= 1;
+        } // 既に手洗いをしたことがあればポイントは減らさない
+        this.own.player.own.hasWashed = true;
+        this.own.player.anims.play(this.own.player.own.hasMask ? 'setWashedWithMask' : 'setWashed');
+        this.own.player.own.isStop = true;
+
+        this.own.player.once('animationcomplete', this.setAnimComplete, this);
+    }
+
+    hitDrinking() {
+        console.log('get Drink!!!');
+        if (!this.own.player.own.hasDrinking) {
+            this.own.coronaPoint -= 1;
+        } // 既にBarに着いたことがあればポイントは減らさない
+        this.own.player.own.hasDrinking = true;
+        this.own.player.anims.play('setDrinking');
+        this.own.player.own.isStop = true;
+
+        this.own.player.once('animationcomplete', this.setAnimComplete, this);
+    }
+
+    setAnimComplete() {
         this.own.player.own.isStop = false;
     }
 
