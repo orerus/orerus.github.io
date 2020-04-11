@@ -34,6 +34,9 @@ function getUrlQueries() {
 }
 var queries = getUrlQueries();
 /// Gameパラメーター /////////////////
+// 自キャラ設定 ///////////////////////////////
+// playerSpeed:         0 <= speed <= 1000  スピード
+var playerSpeed = 3000;
 // 敵キャラ当たり判定設定 ///////////////////////
 var hitRangeX = queries.hitRangeX ? Number(queries.hitRangeX) : 50; // x座標のズレがこの値より小さければ当たり判定
 var hitRangeY = queries.hitRangeY ? Number(queries.hitRangeY) : 20; // y座標のズレがこの値より小さければ当たり判定
@@ -44,7 +47,7 @@ var hitSneezeRangeY = queries.hitSneezeRangeY ? Number(queries.hitSneezeRangeY) 
 // x:           200 <= x <= 3000    初期x座標 
 // y:           422 <= y <= 600     初期y座標 (moveTypeが3の場合のみ反映)
 // direction:   left/right          初期向き (moveTypeが3の場合のみ反映)
-// speed:       0 <= speed <= 1000  スピード (300が主人公の速度, moveTypeが3の場合のみ反映)
+// speed:       0 <= speed <= 1000  スピード (300が初期値, moveTypeが3の場合のみ反映)
 // moveType:    0, 1, 2, 3          0: 円, 1: 斜め, 2: 上下, 3: 左右
 // sneezeRate:  0 <= sneezeRate <= 10000    くしゃみをする確率（0 ~ 30 くらいが適正。1フレームあたり sneezeRate/10000 の確率でくしゃみをする。）
 var enemyParameters = [
@@ -112,7 +115,9 @@ var enemyParameters = [
         sneezeRate: 10,
     },
 ];
-
+// 環境設定 ///////////////////////////////
+// wallAlpha:         0 <= speed <= 1  透過率
+var wallAlpha = 0.5;
 ////////////////////////////////////
 
 function getRandomInt(max) {
@@ -131,6 +136,7 @@ class LoaderScene extends Phaser.Scene {
         this.load.multiatlas('cityscene', 'assets/cityscene.json', 'assets');
         this.load.multiatlas('gamescene', 'assets/gamescene.json', 'assets');
         this.load.image('background', 'assets/background.png');
+        this.load.image('ground', 'assets/platform.png');
     }
 
     create ()
@@ -254,20 +260,21 @@ class GameScene extends Phaser.Scene {
     preload ()
     {
         this.own = {};
+        this.own.time = null;
         this.own.isEasy = false;
         this.own.enemies = {};
         this.own.move = 90 * (Math.PI / 180);
         this.own.playerHeight = 324; // scale 0.5で使う
         this.own.worldMinX = 0;
         this.own.worldMaxX = 800;
-        this.own.worldMinY = 450 - this.own.playerHeight;
+        this.own.worldMinY = 430 - this.own.playerHeight;
         this.own.worldMaxY = 600; //+ this.own.playerHeight;
         this.own.enemyInitY = (this.own.worldMaxY + this.own.worldMinY + this.own.playerHeight) / 2 ;
         this.own.worldDistanceY = this.own.worldMaxY - this.own.worldMinY - this.own.playerHeight;
         this.own.worldHalfDistanceY = 55; //this.own.worldDistanceY / 2;
         this.own.cursors = null;
         this.own.player = null;
-        this.own.playerSpeed = 3000;
+        this.own.playerSpeed = playerSpeed;
         this.own.remainTime = 10000; // 初期残り時間
         this.own.coronaPointText = null;
         this.own.remainText = null;
@@ -301,22 +308,53 @@ class GameScene extends Phaser.Scene {
         // this.add.sprite(1600, 0, 'cityscene', 'background.png');
         // this.add.sprite(2400, 0, 'cityscene', 'background.png');
 
-        // 壁の当たり判定
-        let platforms = this.physics.add.staticGroup();
-        let homeWall = this.add.rectangle(
-            200,
-            0, 
-            50, 
-            280, 
-            0x333333
-        ).setAlpha(0.5).setOrigin(0);
-
-        this.own.player = this.physics.add.sprite(0, 450, 'cityscene', 'capguy/walk/0001.png');
+        // 主人公設定
+        this.own.player = this.physics.add.sprite(0, 550, 'cityscene', 'capguy/walk/0001.png');
         this.own.player.setScale(0.8, 0.8);
         this.own.player.setCollideWorldBounds(true);
         this.cameras.main.startFollow(this.own.player, true);
+        this.own.player.own = {};
+        this.own.player.own.hasMask = false;
 
+        // 壁の当たり判定
+        let homeWall = this.add.rectangle(
+            250,
+            0, 
+            10, 
+            250, 
+            0x333333
+        ).setAlpha(wallAlpha).setOrigin(0);
+        this.physics.add.existing(homeWall, true);
+        let barTopWall = this.add.rectangle(
+            3200,
+            0, 
+            500, 
+            220, 
+            0x333333
+        ).setAlpha(wallAlpha).setOrigin(0);
+        this.physics.add.existing(barTopWall, true);
+        let barBottomWall = this.add.rectangle(
+            3300,
+            this.own.worldMaxY - 100, 
+            500, 
+            100, 
+            0x333333
+        ).setAlpha(wallAlpha).setOrigin(0);
+        this.physics.add.existing(barBottomWall, true);
         this.physics.add.collider(this.own.player, homeWall);
+        this.physics.add.collider(this.own.player, barTopWall);
+        this.physics.add.collider(this.own.player, barBottomWall);
+
+        // マスクゾーン
+        let maskWall = this.add.rectangle(
+            0,
+            100, 
+            200, 
+            10, 
+            0x008000
+        ).setAlpha(wallAlpha).setOrigin(0);
+        this.physics.add.existing(maskWall, true);
+        this.physics.add.collider(this.own.player, maskWall, () => this.hitMask());
 
         // Bar内の人物
         let woman = this.add.sprite(3535, 475, 'gamescene', 'chara/teki_d1_4.png').setScale(0.8);
@@ -343,15 +381,27 @@ class GameScene extends Phaser.Scene {
             this.own.enemies[i].flipX = enemyParameters[i].direction === 'left';
         }
 
+        // アニメーション生成
+        var setMaskFrameNames = this.anims.generateFrameNames('gamescene', {
+            start: 1, end: 8, zeroPad: 1,
+            prefix: 'chara/main_a3_', suffix: '.png'
+        });
+        this.anims.create({ key: 'setMask', frames: setMaskFrameNames, frameRate: 10, repeat: 2 });
+        this.anims.create({ key: 'maskWalk', frames: setMaskFrameNames, frameRate: 10, repeat: -1 });
+        var maskStayframeNames = this.anims.generateFrameNames('gamescene', {
+            start: 4, end: 4, zeroPad: 1,
+            prefix: 'chara/main_a3_', suffix: '.png'
+        });
+        this.anims.create({ key: 'maskStay', frames: maskStayframeNames, frameRate: 10, repeat: -1 });
 
-        var walkframeNames = this.anims.generateFrameNames('cityscene', {
-            start: 1, end: 8, zeroPad: 4,
-            prefix: 'capguy/walk/', suffix: '.png'
+        var walkframeNames = this.anims.generateFrameNames('gamescene', {
+            start: 1, end: 8, zeroPad: 1,
+            prefix: 'chara/main_a1_', suffix: '.png'
         });
         this.anims.create({ key: 'walk', frames: walkframeNames, frameRate: 10, repeat: -1 });
-        var stayframeNames = this.anims.generateFrameNames('cityscene', {
-            start: 4, end: 4, zeroPad: 4,
-            prefix: 'capguy/walk/', suffix: '.png'
+        var stayframeNames = this.anims.generateFrameNames('gamescene', {
+            start: 4, end: 4, zeroPad: 1,
+            prefix: 'chara/main_a1_', suffix: '.png'
         });
         this.anims.create({ key: 'stay', frames: stayframeNames, frameRate: 10, repeat: -1 });
         var enemyWalkframeNames = this.anims.generateFrameNames('cityscene', {
@@ -375,7 +425,7 @@ class GameScene extends Phaser.Scene {
         this.own.remainText.setText('Time: ' + this.own.remainTime);
     }
 
-    update () {
+    update (time, delta) {
         // console.log('From GameScene Update');
         // スワイプの動き（スマホ用）
         let pointer = this.input.activePointer;
@@ -390,36 +440,38 @@ class GameScene extends Phaser.Scene {
         let isUpDown = pointer.isDown && pointer.y < this.own.pointerState.startY - 50;
         let isDownDown = pointer.isDown && pointer.y > this.own.pointerState.startY + 50;
 
+        // プレイヤー処理
         this.own.player.setVelocity(0);
-        // カーソル
-        if (this.own.cursors.left.isDown || isLeftDown)
-        {
-            this.own.player.setVelocityX(-this.own.playerSpeed);
-            this.own.player.flipX = true;
-            // this.own.player.anims.play('walk', true);
+        if (!this.own.player.own.isStop) {
+            // カーソル
+            if (this.own.cursors.left.isDown || isLeftDown)
+            {
+                this.own.player.setVelocityX(-this.own.playerSpeed);
+                this.own.player.flipX = true;
+                // this.own.player.anims.play('walk', true);
+            }
+            if (this.own.cursors.right.isDown || isRightDown)
+            {
+                this.own.player.setVelocityX(this.own.playerSpeed);
+                this.own.player.flipX = false;
+                // this.own.player.anims.play('walk', true);
+            }
+            if (this.own.cursors.up.isDown || isUpDown)
+            {
+                this.own.player.setVelocityY(-this.own.playerSpeed);
+                // this.own.player.anims.play('walk', true);
+            }
+            if (this.own.cursors.down.isDown || isDownDown)
+            {
+                this.own.player.setVelocityY(this.own.playerSpeed);
+                // this.own.player.anims.play('walk', true);
+            }
+            if ((!this.own.cursors.left.isDown && !this.own.cursors.right.isDown && !this.own.cursors.up.isDown && !this.own.cursors.down.isDown) && !(isLeftDown || isRightDown || isUpDown || isDownDown)) {
+                this.own.player.anims.play(this.own.player.own.hasMask ? 'maskStay' : 'stay', true);
+            } else {
+                this.own.player.anims.play(this.own.player.own.hasMask ? 'maskWalk' : 'walk', true);
+            }
         }
-        if (this.own.cursors.right.isDown || isRightDown)
-        {
-            this.own.player.setVelocityX(this.own.playerSpeed);
-            this.own.player.flipX = false;
-            // this.own.player.anims.play('walk', true);
-        }
-        if (this.own.cursors.up.isDown || isUpDown)
-        {
-            this.own.player.setVelocityY(-this.own.playerSpeed);
-            // this.own.player.anims.play('walk', true);
-        }
-        if (this.own.cursors.down.isDown || isDownDown)
-        {
-            this.own.player.setVelocityY(this.own.playerSpeed);
-            // this.own.player.anims.play('walk', true);
-        }
-        if ((!this.own.cursors.left.isDown && !this.own.cursors.right.isDown && !this.own.cursors.up.isDown && !this.own.cursors.down.isDown) && !(isLeftDown || isRightDown || isUpDown || isDownDown)) {
-            this.own.player.anims.play('stay', true);
-        } else {
-            this.own.player.anims.play('walk', true);
-        }
-
         // depth sorting
         this.own.player.depth = this.own.player.y;
 
@@ -537,6 +589,21 @@ class GameScene extends Phaser.Scene {
             this.physics.pause();
             this.scene.start('ResultScene', {coronaPoint: this.own.coronaPoint});
         }
+    }
+
+    hitMask() {
+        console.log('get Mask!!!');
+        if (this.own.player.own.hasMask) return; // マスクを既に持っていれば何もしない
+        this.own.player.own.hasMask = true;
+        this.own.player.anims.play('setMask');
+        this.own.player.own.isStop = true;
+        this.own.coronaPoint -= 1;
+
+        this.own.player.once('animationcomplete', this.setMaskAnimComplete, this);
+    }
+
+    setMaskAnimComplete() {
+        this.own.player.own.isStop = false;
     }
 
     // shutdown() {
