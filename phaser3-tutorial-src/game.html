@@ -154,7 +154,8 @@ class LoaderScene extends Phaser.Scene {
         this.load.multiatlas('cityscene', 'assets/cityscene.json', 'assets');
         this.load.multiatlas('gamescene', 'assets/gamescene.json', 'assets');
         this.load.image('background', 'assets/background.png');
-        this.load.image('ground', 'assets/platform.png');
+        this.load.image('bad_end', 'assets/end_bad.png');
+        this.load.image('happy_end', 'assets/end_happy.png');
     }
 
     create ()
@@ -293,7 +294,7 @@ class GameScene extends Phaser.Scene {
         this.own.cursors = null;
         this.own.player = null;
         this.own.playerSpeed = playerSpeed;
-        this.own.remainTime = 10000; // 初期残り時間
+        this.own.remainTime = 600; // 初期残り時間
         this.own.coronaPointText = null;
         this.own.remainText = null;
         this.own.coronaPoint = 0;
@@ -301,6 +302,7 @@ class GameScene extends Phaser.Scene {
         this.own.pointerState.isDowning = false;
         this.own.pointerState.startX = 0;
         this.own.pointerState.startY = 0;
+        this.own.isGoalOpened = false;
         this.own.debug = true; // DEBUG MODE
         this.isDismissed = false;
     }
@@ -364,6 +366,16 @@ class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.own.player, barTopWall);
         this.physics.add.collider(this.own.player, barBottomWall);
 
+        // ゴールゾーン
+        this.own.goalZone = this.add.rectangle(
+            0,
+            0, 
+            100, 
+            600, 
+            0x0000ff
+        ).setAlpha(wallAlpha).setOrigin(0);
+        this.physics.add.existing(this.own.goalZone, true);
+        this.physics.add.overlap(this.own.player, this.own.goalZone, () => this.hitGoal());
         // マスクゾーン
         let maskWall = this.add.rectangle(
             0,
@@ -633,16 +645,26 @@ class GameScene extends Phaser.Scene {
         if (this.own.debug) {
             this.own.coronaPointText.setText('CoronaPoint: ' + this.own.coronaPoint);
         }
-        this.own.remainTime -= 1;
-        this.own.remainText.setText('Time: ' + this.own.remainTime);
-        this.own.move += 0.01;
 
         // 残り時間判定
-        if (this.own.remainTime <= 0 && !this.isDismissed) {
-            this.isDismissed = true;
-            this.physics.pause();
-            this.scene.start('ResultScene', {coronaPoint: this.own.coronaPoint});
+        if (this.own.remainTime > 0) {
+            this.own.remainTime -= 1;
+            this.own.remainText.setText('Time: ' + this.own.remainTime);
         }
+        if (this.own.remainTime <= 0 && !this.own.isGoalOpened) {
+            this.own.isGoalOpened = true;
+        } 
+        this.own.move += 0.01;
+    }
+
+    hitGoal() {
+        console.log('get Goal!!!');
+        if (!this.own.isGoalOpened) return; // Goal条件を満たしていないと何もしない
+        if (this.isDismissed) return; // Goal済みなら何もしない
+        this.isDismissed = true;
+        // go to result
+        this.physics.pause();
+        this.scene.start('ResultScene', {coronaPoint: this.own.coronaPoint});
     }
 
     hitMask() {
@@ -676,6 +698,7 @@ class GameScene extends Phaser.Scene {
         this.own.player.own.hasDrinking = true;
         this.own.player.anims.play('setDrinking');
         this.own.player.own.isStop = true;
+        this.own.isGoalOpened = true;
 
         this.own.player.once('animationcomplete', this.setAnimComplete, this);
     }
@@ -713,12 +736,15 @@ class ResultScene extends Phaser.Scene {
     {
         // console.log('From ResultScene Create');
         this.coronaPoint = data.coronaPoint;
-        if (this.coronaPoint < 0) {
-            this.resultText = this.add.text(400, 150, 'Happy end!!!', { fontSize: '72px', fill: '#fff' }).setOrigin(0.5);
+        if (this.coronaPoint <= 0) {
+            let background = this.add.image(400, 300, 'happy_end').setScale(1.1);
+            this.resultText = this.add.text(400, 150, 'Happy end!', { fontSize: '72px', fill: '#000' }).setOrigin(0.5);
+            this.retryText = this.add.text(400, 425, '→： Retry', { fontSize: '48px', fill: '#000' }).setOrigin(0.5);
         } else {
-            this.resultText = this.add.text(400, 150, 'Bad end・・・', { fontSize: '72px', fill: '#fff' }).setOrigin(0.5);
+            let background = this.add.image(400, 300, 'bad_end').setScale(1.1);
+            this.resultText = this.add.text(400, 150, 'Bad end…', { fontSize: '72px', fill: '#fff' }).setOrigin(0.5);
+            this.retryText = this.add.text(400, 225, '→： Retry', { fontSize: '48px', fill: '#fff' }).setOrigin(0.5);
         }
-        this.retryText = this.add.text(400, 400, '→： Retry', { fontSize: '48px', fill: '#fff' }).setOrigin(0.5);
         this.laterBackground = this.add.rectangle(0, 0, 800, 600, 0x000000).setOrigin(0);
         this.laterText = this.add.text(400, 150, '10 days later・・・', { fontSize: '48px', fill: '#fff' }).setOrigin(0.5);
         this.cursors = this.input.keyboard.createCursorKeys();
