@@ -50,6 +50,7 @@ var hitSneezeRangeY = queries.hitSneezeRangeY ? Number(queries.hitSneezeRangeY) 
 // speed:       0 <= speed <= 1000  スピード (300が初期値, moveTypeが3の場合のみ反映)
 // moveType:    0, 1, 2, 3          0: 円, 1: 斜め, 2: 上下, 3: 左右
 // sneezeRate:  0 <= sneezeRate <= 10000    くしゃみをする確率（0 ~ 30 くらいが適正。1フレームあたり sneezeRate/10000 の確率でくしゃみをする。）
+// charaType:   a, b, c, d          敵の図柄タイプ
 var enemyParameters = [
     {
         isCorona: true,
@@ -59,15 +60,17 @@ var enemyParameters = [
         speed: 350,
         moveType: 3,
         sneezeRate: 80,
+        charaType: 'a',
     },
     {
-        isCorona: true,
+        isCorona: false,
         x: 1200,
         y: 450,
         direction: 'right',
         speed: 350,
         moveType: 3,
         sneezeRate: 80,
+        charaType: 'b',
     },
     {
         isCorona: true,
@@ -77,24 +80,27 @@ var enemyParameters = [
         speed: 350,
         moveType: 3,
         sneezeRate: 80,
+        charaType: 'c',
     },
     {
-        isCorona: true,
+        isCorona: false,
         x: 250,
         y: 475,
         direction: 'right',
         speed: 300,
         moveType: 3,
         sneezeRate: 50,
+        charaType: 'd',
     },
     {
-        isCorona: true,
+        isCorona: false,
         x: 300,
         y: 500,
         direction: 'right',
         speed: 250,
         moveType: 3,
         sneezeRate: 50,
+        charaType: 'a',
     },
     {
         isCorona: true,
@@ -104,15 +110,17 @@ var enemyParameters = [
         speed: 200,
         moveType: 3,
         sneezeRate: 50,
+        charaType: 'b',
     },
     {
-        isCorona: true,
+        isCorona: false,
         x: 400,
         y: 550,
         direction: 'right',
         speed: 150,
         moveType: 3,
         sneezeRate: 10,
+        charaType: 'c',
     },
     {
         isCorona: true,
@@ -122,6 +130,7 @@ var enemyParameters = [
         speed: 100,
         moveType: 3,
         sneezeRate: 10,
+        charaType: 'd',
     },
     {
         isCorona: true,
@@ -131,6 +140,7 @@ var enemyParameters = [
         speed: 50,
         moveType: 3,
         sneezeRate: 10,
+        charaType: 'a',
     },
 ];
 // 環境設定 ///////////////////////////////
@@ -151,7 +161,6 @@ class LoaderScene extends Phaser.Scene {
     preload ()
     {
         // ここで全ての必要なimageをloadする
-        this.load.multiatlas('cityscene', 'assets/cityscene.json', 'assets');
         this.load.multiatlas('gamescene', 'assets/gamescene.json', 'assets');
         this.load.image('background', 'assets/background.png');
         this.load.image('bad_end', 'assets/end_bad.png');
@@ -181,7 +190,6 @@ class TitleScene extends Phaser.Scene {
         this.easyText = null;
         this.normalText = null;
         this.hardText = null;
-        // this.cursors = null;
         this.pointer = null;
         this.isDismissed = false;
     }
@@ -323,13 +331,9 @@ class GameScene extends Phaser.Scene {
 
         // 背景画像の設定
         let background = this.add.image(0, 0, 'background').setScale(1.2).setOrigin(0);
-        // let background = this.add.sprite(0, 0, 'cityscene', 'background.png');
-        // this.add.sprite(800, 0, 'cityscene', 'background.png');
-        // this.add.sprite(1600, 0, 'cityscene', 'background.png');
-        // this.add.sprite(2400, 0, 'cityscene', 'background.png');
 
         // 主人公設定
-        this.own.player = this.physics.add.sprite(0, 550, 'cityscene', 'capguy/walk/0001.png');
+        this.own.player = this.physics.add.sprite(0, 550, 'gamescene', 'chara/main_a1_4.png');
         this.own.player.setScale(0.8, 0.8);
         this.own.player.setCollideWorldBounds(true);
         this.cameras.main.startFollow(this.own.player, true);
@@ -418,13 +422,13 @@ class GameScene extends Phaser.Scene {
             // var randomEnemyInitY = this.own.enemyInitY + getRandomInt(this.own.worldDistanceY) - this.own.worldHalfDistanceY;
             let enemyInitY = enemyParameters[i].y;
             if (enemyParameters[i].moveType < 3) enemyInitY = this.own.enemyInitY; //this.own.worldMinY + this.own.playerHeight;
-            this.own.enemies[i] = this.physics.add.sprite(enemyInitX, enemyInitY, 'cityscene', 'enemy/walk/0001.png');
+            this.own.enemies[i] = this.physics.add.sprite(enemyInitX, enemyInitY, 'gamescene', `chara/teki_${enemyParameters[i].charaType}1_4.png`);
             this.own.enemies[i].own = {};
             this.own.enemies[i].own.speed = enemyParameters[i].speed;
             this.own.enemies[i].own.moveType = enemyParameters[i].moveType;
             this.own.enemies[i].own.enemyInitX = enemyInitX;
             this.own.enemies[i].own.isCorona = enemyParameters[i].isCorona;
-            if (this.isEasy && this.own.enemies[i].own.isCorona) this.own.enemies[i].setTint('#000');
+            this.own.enemies[i].own.charaType = enemyParameters[i].charaType;
             this.own.enemies[i].own.isInfected = false;
             this.own.enemies[i].own.sneezeRate = enemyParameters[i].sneezeRate;
             this.own.enemies[i].own.sneezeRemainTime = 0;
@@ -470,16 +474,30 @@ class GameScene extends Phaser.Scene {
             prefix: 'chara/main_a1_', suffix: '.png'
         });
         this.anims.create({ key: 'stay', frames: stayframeNames, frameRate: 10, repeat: -1 });
-        var enemyWalkframeNames = this.anims.generateFrameNames('cityscene', {
-            start: 1, end: 8, zeroPad: 4,
-            prefix: 'enemy/walk/', suffix: '.png'
-        });
-        this.anims.create({ key: 'enemyWalk', frames: enemyWalkframeNames, frameRate: 10, repeat: -1 });
-        var enemyStayframeNames = this.anims.generateFrameNames('cityscene', {
-            start: 4, end: 4, zeroPad: 4,
-            prefix: 'enemy/walk/', suffix: '.png'
-        });
-        this.anims.create({ key: 'enemyStay', frames: enemyStayframeNames, frameRate: 10, repeat: -1 });
+        this.makeWalkFrameNames(this, 'a1');
+        this.makeWalkFrameNames(this, 'a2');
+        this.makeWalkFrameNames(this, 'b1');
+        this.makeWalkFrameNames(this, 'b2');
+        this.makeWalkFrameNames(this, 'c1');
+        this.makeWalkFrameNames(this, 'c2');
+        this.makeWalkFrameNames(this, 'd1');
+        this.makeWalkFrameNames(this, 'd2');
+        this.makeStayFrameNames(this, 'a1');
+        this.makeStayFrameNames(this, 'a2');
+        this.makeStayFrameNames(this, 'b1');
+        this.makeStayFrameNames(this, 'b2');
+        this.makeStayFrameNames(this, 'c1');
+        this.makeStayFrameNames(this, 'c2');
+        this.makeStayFrameNames(this, 'd1');
+        this.makeStayFrameNames(this, 'd2');
+        this.makeSneezeFrameNames(this, 'a', 1);
+        this.makeSneezeFrameNames(this, 'a', 2);
+        this.makeSneezeFrameNames(this, 'b', 1);
+        this.makeSneezeFrameNames(this, 'b', 2);
+        this.makeSneezeFrameNames(this, 'c', 1);
+        this.makeSneezeFrameNames(this, 'c', 2);
+        this.makeSneezeFrameNames(this, 'd', 1);
+        this.makeSneezeFrameNames(this, 'd', 2);
 
         this.own.cursors = this.input.keyboard.createCursorKeys();
         // テキスト配置
@@ -489,6 +507,34 @@ class GameScene extends Phaser.Scene {
         }
         this.own.remainText = this.add.text(600, 32).setScrollFactor(0).setFontSize(32).setColor('#000000');
         this.own.remainText.setText('Time: ' + this.own.remainTime);
+    }
+
+    makeWalkFrameNames(context, pattern) {
+        let frames = context.anims.generateFrameNames('gamescene', {
+            start: 1, end: 8, zeroPad: 1,
+            prefix: `chara/teki_${pattern}_`, suffix: '.png'
+        });
+        context.anims.create({ key: 'enemyWalk' + pattern, frames: frames, frameRate: 10, repeat: -1 });
+        console.log('enemyWalk' + pattern);
+    }
+
+    makeStayFrameNames(context, pattern) {
+        let frames = context.anims.generateFrameNames('gamescene', {
+            start: 4, end: 4, zeroPad: 1,
+            prefix: `chara/teki_${pattern}_`, suffix: '.png'
+        });
+        context.anims.create({ key: 'enemyStay' + pattern, frames: frames, frameRate: 10, repeat: -1 });
+        console.log('enemyStay' + pattern);
+    }
+
+    makeSneezeFrameNames(context, pattern, coronaPattern) { // coronaPattern: 1, 2
+        let startFrame = coronaPattern === 2 ? 3 : 1;
+        let frames = context.anims.generateFrameNames('gamescene', {
+            start: startFrame, end: startFrame + 1, zeroPad: 1,
+            prefix: `chara/teki_e_${pattern}`, suffix: '.png'
+        });
+        context.anims.create({ key: 'enemySneeze' + pattern + coronaPattern, frames: frames, frameRate: 10, repeat: -1 });
+        console.log('enemySneeze' + pattern + coronaPattern);
     }
 
     update (time, delta) {
@@ -544,6 +590,7 @@ class GameScene extends Phaser.Scene {
         // enemy
         for (var i = 0; i < enemyParameters.length; i++) {
             this.own.enemies[i].setVelocity(0);
+            let coronaPattern = this.own.isEasy ? (this.own.enemies[i].own.isCorona ? 2 : 1) : 1;
             if (this.own.enemies[i].own.sneezeRemainTime <= 0) { // 敵キャラくしゃみ中は動かない
                 switch (this.own.enemies[i].own.moveType) {
                 case 0:
@@ -592,9 +639,10 @@ class GameScene extends Phaser.Scene {
                 }
                 // 敵キャラアニメーション
                 if (this.own.enemies[i].body.velocity.x === 0 && this.own.enemies[i].body.velocity.y === 0) {
-                    this.own.enemies[i].anims.play('enemyStay', true);
+                    this.own.enemies[i].anims.play(`enemyStay${this.own.enemies[i].own.charaType}${coronaPattern}`, true);
                 } else {
-                    this.own.enemies[i].anims.play('enemyWalk', true);
+                    console.log(`enemyWalk${this.own.enemies[i].own.charaType}${coronaPattern}`);
+                    this.own.enemies[i].anims.play(`enemyWalk${this.own.enemies[i].own.charaType}${coronaPattern}`, true);
                 }
                 // 敵キャラdepth更新
                 this.own.enemies[i].depth = this.own.enemies[i].y;
@@ -605,7 +653,6 @@ class GameScene extends Phaser.Scene {
                 // 敵キャラ当たり判定
                 if (!this.own.enemies[i].own.isInfected && Math.abs(this.own.enemies[i].x - this.own.player.x) <= hitRangeX && Math.abs(this.own.enemies[i].y - this.own.player.y) <= hitRangeY) {
                     this.own.enemies[i].own.isInfected = true;
-                    // this.own.enemies[i].setTint('#000');
                     this.own.coronaPoint += 1;
                 }
                 // 敵キャラくしゃみ当たり判定
@@ -615,7 +662,6 @@ class GameScene extends Phaser.Scene {
                     if (this.own.enemies[i].own.sneezeRange) {
                         if (!this.own.enemies[i].own.isInfected && this.own.enemies[i].own.sneezeRange.x <= this.own.player.x && this.own.player.x <= this.own.enemies[i].own.sneezeRange.x + this.own.enemies[i].own.sneezeRange.width && this.own.enemies[i].own.sneezeRange.y <= this.own.player.y && this.own.player.y <= this.own.enemies[i].own.sneezeRange.y + this.own.enemies[i].own.sneezeRange.height) {
                             this.own.enemies[i].own.isInfected = true;
-                            // this.own.enemies[i].setTint('#000');
                             this.own.coronaPoint += 1;
                         }
                     }
@@ -636,7 +682,8 @@ class GameScene extends Phaser.Scene {
                         hitSneezeRangeX, 
                         hitSneezeRangeY, 
                         0x6666ff
-                    ).setAlpha(0.5).setOrigin(0);
+                    ).setAlpha(this.own.isEasy ? 0.5 : 0.0).setOrigin(0);
+                    this.own.enemies[i].anims.play(`enemySneeze${this.own.enemies[i].own.charaType}${coronaPattern}`, true);
                 }
             }
         }
@@ -796,151 +843,10 @@ class ResultScene extends Phaser.Scene {
                 debug: false
             }
         },
-        // scene: {
-        //     preload: preload,
-        //     create: create,
-        //     update: update
-        // }
         scene: [ LoaderScene, TitleScene, GameScene, ResultScene ]
     };
 
     var game = new Phaser.Game(config);
-    // var playerHeight = 324;
-    // var worldMinX = 0;
-    // var worldMaxX = 800;
-    // var worldMinY = 425 + playerHeight;
-    // var worldMaxY = 510 + playerHeight;
-    // var cursors;
-    // var player;
-    // var playerSpeed = 300;
-    // var remainTime = 10000;
-    // var remainText;
-
-    // function preload ()
-    // {
-    //     this.load.multiatlas('cityscene', 'assets/cityscene.json', 'assets');
-    // }
-
-    // function create ()
-    // {
-    //     this.cameras.main.setBounds(0, 0, 800 * 4, 600);
-    //     // this.physics.world.setBounds(worldMinX, worldMinY, worldMaxX, worldMaxY);
-    //     this.physics.world.setBounds(0, 260, 800 * 4, 250);
-    //     this.cameras.main.setDeadzone(100, 20);
-    //     // this.cameras.main.setZoom(1.3);
-
-    //     var background = this.add.sprite(0, 0, 'cityscene', 'background.png');
-    //     this.add.sprite(800, 0, 'cityscene', 'background.png');
-    //     this.add.sprite(1600, 0, 'cityscene', 'background.png');
-    //     this.add.sprite(2400, 0, 'cityscene', 'background.png');
-
-    //     player = this.physics.add.sprite(0, 450, 'cityscene', 'capguy/walk/0001.png');
-    //     player.setScale(0.5, 0.5);
-    //     player.setCollideWorldBounds(true);
-    //     this.cameras.main.startFollow(player, true);
-
-    //     var walkframeNames = this.anims.generateFrameNames('cityscene', {
-    //         start: 1, end: 8, zeroPad: 4,
-    //         prefix: 'capguy/walk/', suffix: '.png'
-    //     });
-    //     this.anims.create({ key: 'walk', frames: walkframeNames, frameRate: 10, repeat: -1 });
-    //     var stayframeNames = this.anims.generateFrameNames('cityscene', {
-    //         start: 4, end: 4, zeroPad: 4,
-    //         prefix: 'capguy/walk/', suffix: '.png'
-    //     });
-    //     this.anims.create({ key: 'stay', frames: stayframeNames, frameRate: 10, repeat: -1 });
-
-    //     cursors = this.input.keyboard.createCursorKeys();
-
-    //     remainText = this.add.text(32, 32).setScrollFactor(0).setFontSize(32).setColor('#000000');
-    // }
-
-    // function update(time, delta)
-    // {
-    //     // sample
-    //     // player.x += delta/8;
-    //     // if(player.x > 800)
-    //     // {
-    //     //     player.x = -50;
-    //     // }
-
-    //     player.setVelocity(0);
-    //     // カーソル
-    //     // TODO 斜め
-    //     if (cursors.left.isDown)
-    //     {
-    //         player.setVelocityX(-playerSpeed);
-    //         player.flipX = true;
-    //         player.anims.play('walk', true);
-    //     }
-    //     else if (cursors.right.isDown)
-    //     {
-    //         player.setVelocityX(playerSpeed);
-    //         player.flipX = false;
-    //         player.anims.play('walk', true);
-    //     }
-    //     if (cursors.up.isDown)
-    //     {
-    //         player.setVelocityY(-playerSpeed);
-    //         player.anims.play('walk', true);
-    //     }
-    //     else if (cursors.down.isDown)
-    //     {
-    //         player.setVelocityY(playerSpeed);
-    //         player.anims.play('walk', true);
-    //     }
-    //     if (!cursors.left.isDown && !cursors.right.isDown && !cursors.up.isDown && !cursors.down.isDown) {
-    //         player.anims.play('stay', true);
-    //     }
-
-    //     // depth sorting
-    //     player.depth = player.y;
-    // }
-
-    // function collectStar (player, star)
-    // {
-    //     star.disableBody(true, true);
-
-    //     score += 10;
-    //     scoreText.setText('Score: ' + score);
-    //     remainTime += 50;
-
-    //     if (stars.countActive(true) === 0)
-    //     {
-    //         stars.children.iterate(function (child) {
-
-    //             child.enableBody(true, child.x, 0, true, true);
-
-    //         });
-
-    //         var x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
-
-    //         var bomb = bombs.create(x, 16, 'bomb');
-    //         bomb.setBounce(1);
-    //         bomb.setCollideWorldBounds(true);
-    //         bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
-
-    //     }
-    // }
-
-    // function hitBomb (player, bomb)
-    // {
-    //     this.physics.pause();
-
-    //     player.setTint(0xff0000);
-
-    //     player.anims.play('turn');
-
-    //     gameOver = true;
-    // }
-
-    // function toGameOver() {
-    //     // this.physics.pause();
-
-    //     player.setTint(0xff0000);
-
-    //     player.anims.play('turn');
-    // }
 </script>
 
 </body>
