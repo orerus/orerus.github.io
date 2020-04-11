@@ -41,7 +41,7 @@ var playerSpeed = 300;
 var hitRangeX = queries.hitRangeX ? Number(queries.hitRangeX) : 50; // x座標のズレがこの値より小さければ当たり判定
 var hitRangeY = queries.hitRangeY ? Number(queries.hitRangeY) : 20; // y座標のズレがこの値より小さければ当たり判定
 var hitSneezeRangeX = queries.hitSneezeRangeX ? Number(queries.hitSneezeRangeX) : 200; // くしゃみをした時のx座標当たり判定（前方）
-var hitSneezeRangeY = queries.hitSneezeRangeY ? Number(queries.hitSneezeRangeY) : 200; // くしゃみをした時のx座標当たり判定
+var hitSneezeRangeY = queries.hitSneezeRangeY ? Number(queries.hitSneezeRangeY) : 250; // くしゃみをした時のx座標当たり判定
 // 敵キャラ設定 ///////////////////////////////
 // isCorona:    true/false          コロナかどうか
 // x:           200 <= x <= 3000    初期x座標 
@@ -50,7 +50,6 @@ var hitSneezeRangeY = queries.hitSneezeRangeY ? Number(queries.hitSneezeRangeY) 
 // speed:       0 <= speed <= 1000  スピード (300が初期値, moveTypeが3の場合のみ反映)
 // moveType:    0, 1, 2, 3          0: 円, 1: 斜め, 2: 上下, 3: 左右
 // sneezeRate:  0 <= sneezeRate <= 10000    くしゃみをする確率（0 ~ 30 くらいが適正。1フレームあたり sneezeRate/10000 の確率でくしゃみをする。）
-// TODO くしゃみ範囲も決められるようにしたい
 var enemyParameters = [
     {
         isCorona: true,
@@ -297,7 +296,7 @@ class GameScene extends Phaser.Scene {
         this.own.remainTime = 10000; // 初期残り時間
         this.own.coronaPointText = null;
         this.own.remainText = null;
-        this.own.coronaPoint = -1;
+        this.own.coronaPoint = 0;
         this.own.pointerState = {};
         this.own.pointerState.isDowning = false;
         this.own.pointerState.startX = 0;
@@ -672,8 +671,8 @@ class GameScene extends Phaser.Scene {
     hitDrinking() {
         console.log('get Drink!!!');
         if (!this.own.player.own.hasDrinking) {
-            this.own.coronaPoint -= 1;
-        } // 既にBarに着いたことがあればポイントは減らさない
+            this.own.coronaPoint += 1;
+        } // 既にBarに着いたことがあればポイントは増やさない
         this.own.player.own.hasDrinking = true;
         this.own.player.anims.play('setDrinking');
         this.own.player.own.isStop = true;
