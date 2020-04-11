@@ -2,7 +2,7 @@
 <html lang="en"> 
 <head> 
     <meta charset="UTF-8" />
-    <title>Making your first Phaser 3 Game - Part 1</title>
+    <title>CoronaEscape-StayHome</title>
     <script src="//cdn.jsdelivr.net/npm/phaser@3.22.0/dist/phaser.js"></script>
     <style type="text/css">
         body {
@@ -14,6 +14,7 @@
 <body>
 
 <script type="text/javascript">
+/// ↓編集しない /////////////////////////////////////////
 function getUrlQueries() {
   var queryStr = window.location.search.slice(1);  // 文頭?を除外
       queries = {};
@@ -33,43 +34,88 @@ function getUrlQueries() {
   return queries;
 }
 var queries = getUrlQueries();
-/// Gameパラメーター /////////////////
-// 自キャラ設定 ///////////////////////////////
+/// ↑編集しない /////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////////
+/// ここから編集可能 ////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+// 環境設定 ///////////////////////////////
+// isGameDebug:         デバッグモード
+// wallAlpha:           0 <= speed <= 1  透過率
+// remainTime:          残り時間の初期値
+var isGameDebug = false;
+var wallAlpha = isGameDebug ? 0.5 : 0.0;
+var remainTime = 3600;
+////////////////////////////////////
+
+/////////////////////////////////////// Gameパラメーター /////////////////////////////////////////////////////
+
+////////////////////////////////////
+// 自キャラ設定 //////////////////////
 // playerSpeed:         0 <= speed <= 1000  スピード
+////////////////////////////////////
 var playerSpeed = 300;
-// 敵キャラ当たり判定設定 ///////////////////////
+
+////////////////////////////////////
+// 敵キャラ当たり判定範囲 //////////////
+////////////////////////////////////
 var hitRangeX = queries.hitRangeX ? Number(queries.hitRangeX) : 50; // x座標のズレがこの値より小さければ当たり判定
 var hitRangeY = queries.hitRangeY ? Number(queries.hitRangeY) : 20; // y座標のズレがこの値より小さければ当たり判定
+////////////////////////////////////
+// 敵キャラくしゃみ当たり判定範囲 ///////
+////////////////////////////////////
 var hitSneezeRangeX = queries.hitSneezeRangeX ? Number(queries.hitSneezeRangeX) : 200; // くしゃみをした時のx座標当たり判定（前方）
-var hitSneezeRangeY = queries.hitSneezeRangeY ? Number(queries.hitSneezeRangeY) : 250; // くしゃみをした時のx座標当たり判定
-// 敵キャラ設定 ///////////////////////////////
+var hitSneezeRangeY = queries.hitSneezeRangeY ? Number(queries.hitSneezeRangeY) : 200; // くしゃみをした時のy座標当たり判定
+////////////////////////////////////
+// 敵キャラ設定 //////////////////////
 // isCorona:    true/false          コロナかどうか
-// x:           200 <= x <= 3000    初期x座標 
+// x:           800 <= x <= 3000    初期x座標 
 // y:           430 <= y <= 600     初期y座標 (moveTypeが3の場合のみ反映)
 // direction:   left/right          初期向き (moveTypeが3の場合のみ反映)
 // speed:       0 <= speed <= 1000  スピード (300が初期値, moveTypeが3の場合のみ反映)
 // moveType:    0, 1, 2, 3          0: 円, 1: 斜め, 2: 上下, 3: 左右
 // sneezeRate:  0 <= sneezeRate <= 10000    くしゃみをする確率（0 ~ 30 くらいが適正。1フレームあたり sneezeRate/10000 の確率でくしゃみをする。）
 // charaType:   a, b, c, d          敵の図柄タイプ
+////////////////////////////////////
+var speedA = 350;
+var speedB = 250;
+var speedC = 200;
+var speedD = 150;
+var sneezeRateA = 10;
+var sneezeRateB = 20;
+var sneezeRateC = 30;
+var sneezeRateD = 40;
+// 以下敵キャラのArray
 var enemyParameters = [
+    // 左右キャラ
     {
         isCorona: true,
-        x: 200,
+        x: 800,
         y: 430,
         direction: 'right',
-        speed: 350,
+        speed: speedA,
         moveType: 3,
-        sneezeRate: 80,
+        sneezeRate: sneezeRateA,
         charaType: 'a',
+    },
+    {
+        isCorona: true,
+        x: 1500,
+        y: 430,
+        direction: 'right',
+        speed: speedD,
+        moveType: 3,
+        sneezeRate: sneezeRateD,
+        charaType: 'd',
     },
     {
         isCorona: false,
         x: 1200,
         y: 450,
         direction: 'right',
-        speed: 350,
+        speed: speedB,
         moveType: 3,
-        sneezeRate: 80,
+        sneezeRate: sneezeRateB,
         charaType: 'b',
     },
     {
@@ -77,79 +123,148 @@ var enemyParameters = [
         x: 2200,
         y: 450,
         direction: 'right',
-        speed: 350,
+        speed: speedC,
         moveType: 3,
         sneezeRate: 0,
         charaType: 'c',
     },
     {
         isCorona: false,
-        x: 250,
+        x: 1050,
         y: 475,
         direction: 'right',
-        speed: 300,
+        speed: speedD,
         moveType: 3,
-        sneezeRate: 50,
+        sneezeRate: sneezeRateD,
         charaType: 'd',
     },
     {
         isCorona: false,
-        x: 300,
+        x: 1700,
         y: 500,
         direction: 'right',
-        speed: 250,
+        speed: speedA,
         moveType: 3,
-        sneezeRate: 50,
+        sneezeRate: sneezeRateA,
         charaType: 'a',
     },
     {
         isCorona: true,
-        x: 350,
+        x: 2600,
         y: 525,
         direction: 'left',
-        speed: 200,
+        speed: speedB,
         moveType: 3,
-        sneezeRate: 50,
+        sneezeRate: sneezeRateB,
         charaType: 'b',
     },
     {
         isCorona: false,
-        x: 400,
+        x: 1500,
         y: 550,
         direction: 'right',
-        speed: 150,
+        speed: speedC,
         moveType: 3,
-        sneezeRate: 10,
+        sneezeRate: sneezeRateC,
         charaType: 'c',
     },
     {
         isCorona: true,
-        x: 450,
+        x: 1450,
         y: 575,
         direction: 'left',
-        speed: 100,
+        speed: speedD,
         moveType: 3,
         sneezeRate: 0,
         charaType: 'd',
     },
     {
         isCorona: true,
-        x: 500,
+        x: 2300,
         y: 600,
         direction: 'right',
-        speed: 50,
+        speed: speedA,
         moveType: 3,
-        sneezeRate: 10,
+        sneezeRate: sneezeRateA,
+        charaType: 'a',
+    },
+    {
+        isCorona: true,
+        x: 2700,
+        y: 600,
+        direction: 'left',
+        speed: speedB,
+        moveType: 3,
+        sneezeRate: sneezeRateB,
+        charaType: 'b',
+    },
+    {
+        isCorona: true,
+        x: 1500,
+        y: 600,
+        direction: 'left',
+        speed: speedC,
+        moveType: 3,
+        sneezeRate: sneezeRateC,
+        charaType: 'c',
+    },
+    // 上下キャラ
+    {
+        isCorona: true,
+        x: 800,
+        y: 450,
+        direction: 'left',
+        speed: 200,
+        moveType: 2,
+        sneezeRate: sneezeRateA,
+        charaType: 'a',
+    },
+    {
+        isCorona: true,
+        x: 1400,
+        y: 470,
+        direction: 'right',
+        speed: 100,
+        moveType: 2,
+        sneezeRate: sneezeRateB,
+        charaType: 'b',
+    },
+    {
+        isCorona: true,
+        x: 2000,
+        y: 520,
+        direction: 'left',
+        speed: 200,
+        moveType: 2,
+        sneezeRate: sneezeRateC,
+        charaType: 'c',
+    },
+    {
+        isCorona: true,
+        x: 2600,
+        y: 560,
+        direction: 'right',
+        speed: 100,
+        moveType: 2,
+        sneezeRate: sneezeRateD,
+        charaType: 'd',
+    },
+    {
+        isCorona: true,
+        x: 3000,
+        y: 530,
+        direction: 'right',
+        speed: 200,
+        moveType: 2,
+        sneezeRate: sneezeRateA,
         charaType: 'a',
     },
 ];
-// 環境設定 ///////////////////////////////
-// isGameDebug:         デバッグモード
-// wallAlpha:           0 <= speed <= 1  透過率
-var isGameDebug = true;
-var wallAlpha = isGameDebug ? 0.5 : 0.0;
-////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+/// ここまで編集可能 ////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 
+/// ↓編集しない /////////////////////////////////////////
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
@@ -171,12 +286,10 @@ class LoaderScene extends Phaser.Scene {
 
     create ()
     {
-        // console.log('From LoaderScene Create');
         this.scene.start('TitleScene');
     }
 
     update () {
-        // this.scene.start('TitleScene');
     }
 }
 
@@ -199,7 +312,7 @@ class TitleScene extends Phaser.Scene {
     create ()
     {
         this.isDismissed = false;
-        this.titleText = this.add.text(400, 150, 'Title', { fontSize: '48px', fill: '#fff' }).setOrigin(0.5);
+        this.titleText = this.add.text(400, 150, 'CoronaEscape-StayHome', { fontSize: '48px', fill: '#fff' }).setOrigin(0.5);
         this.easyText = this.add.text(400, 300, '↑： Easy', { fontSize: '48px', fill: '#fff' }).setOrigin(0.5);
         this.normalText = this.add.text(400, 400, '→： Normal', { fontSize: '48px', fill: '#fff' }).setOrigin(0.5);
 
@@ -216,7 +329,7 @@ class TitleScene extends Phaser.Scene {
         if (this.pointer.isDown && !this.isDismissed) {
             let x = this.pointer.x;
             let y = this.pointer.y;
-            console.log(`Pointer ${this.pointer.x} ${this.pointer.y}`);
+            // console.log(`Pointer ${this.pointer.x} ${this.pointer.y}`);
             if (Math.abs(this.easyText.x - x) < this.easyText.displayWidth / 2 && Math.abs(this.easyText.y - y) < this.easyText.displayHeight / 2) {
                 this.isDismissed = true;
                 this.nextEasy();
@@ -262,19 +375,18 @@ class GameScene extends Phaser.Scene {
         this.own.time = null;
         this.own.isEasy = false;
         this.own.enemies = {};
-        this.own.move = 90 * (Math.PI / 180);
         this.own.playerHeight = 324;
         this.own.worldMinX = 0;
         this.own.worldMaxX = 800;
         this.own.worldMinY = 430 - this.own.playerHeight;
-        this.own.worldMaxY = 600; //+ this.own.playerHeight;
+        this.own.worldMaxY = 600;
         this.own.enemyInitY = (this.own.worldMaxY + this.own.worldMinY + this.own.playerHeight) / 2 ;
         this.own.worldDistanceY = this.own.worldMaxY - this.own.worldMinY - this.own.playerHeight;
-        this.own.worldHalfDistanceY = 55; //this.own.worldDistanceY / 2;
+        this.own.worldHalfDistanceY = 55;
         this.own.cursors = null;
         this.own.player = null;
         this.own.playerSpeed = playerSpeed;
-        this.own.remainTime = 600; // 初期残り時間
+        this.own.remainTime = remainTime; // 初期残り時間
         this.own.coronaPointText = null;
         this.own.remainText = null;
         this.own.coronaPoint = 0;
@@ -283,23 +395,17 @@ class GameScene extends Phaser.Scene {
         this.own.pointerState.startX = 0;
         this.own.pointerState.startY = 0;
         this.own.isGoalOpened = false;
-        this.own.debug = true; // DEBUG MODE
         this.isDismissed = false;
     }
 
     create (data)
     {
-        // this.events.once("shutdown", () => this.shutdown());
-        // console.log('From GameScene Create');
-        // TODO DEBUG
-        if(this.own.debug) window.console.log('現在のゲームモード: ' + data.gameMode);
+        if(isGameDebug) window.console.log('現在のゲームモード: ' + data.gameMode);
         this.own.isEasy = (data.gameMode === 0);
 
         this.cameras.main.setBounds(0, 0, 3600, 600);
-        // this.physics.world.setBounds(worldMinX, worldMinY, worldMaxX, worldMaxY);
         this.physics.world.setBounds(this.own.worldMinX, this.own.worldMinY, this.own.worldMaxX * 4 + 400, this.own.worldMaxY - this.own.worldMinY);
         this.cameras.main.setDeadzone(100, 20);
-        // this.cameras.main.setZoom(1.3);
 
         // 背景画像の設定
         let background = this.add.image(0, 0, 'background').setScale(1.2).setOrigin(0);
@@ -390,10 +496,8 @@ class GameScene extends Phaser.Scene {
 
         // 敵の初期配置
         for (var i = 0; i < enemyParameters.length; i++) {
-            let enemyInitX = enemyParameters[i].x; //1600 + (getRandomInt(57) - 28) * 25;
-            // var randomEnemyInitY = this.own.enemyInitY + getRandomInt(this.own.worldDistanceY) - this.own.worldHalfDistanceY;
+            let enemyInitX = enemyParameters[i].x;
             let enemyInitY = enemyParameters[i].y;
-            if (enemyParameters[i].moveType < 3) enemyInitY = this.own.enemyInitY; //this.own.worldMinY + this.own.playerHeight;
             this.own.enemies[i] = this.physics.add.sprite(enemyInitX, enemyInitY, 'gamescene', `chara/teki_${enemyParameters[i].charaType}1_4.png`);
             this.own.enemies[i].own = {};
             this.own.enemies[i].own.speed = enemyParameters[i].speed;
@@ -404,6 +508,7 @@ class GameScene extends Phaser.Scene {
             this.own.enemies[i].own.isInfected = false;
             this.own.enemies[i].own.sneezeRate = enemyParameters[i].sneezeRate;
             this.own.enemies[i].own.sneezeRemainTime = 0;
+            this.own.enemies[i].own.move = 90 * (Math.PI / 180);
             this.own.enemies[i].setScale(0.8, 0.8);
             this.own.enemies[i].flipX = enemyParameters[i].direction === 'left';
         }
@@ -473,7 +578,7 @@ class GameScene extends Phaser.Scene {
 
         this.own.cursors = this.input.keyboard.createCursorKeys();
         // テキスト配置
-        if (this.own.debug) {
+        if (this.own.isEasy) {
             this.own.coronaPointText = this.add.text(32, 32).setScrollFactor(0).setFontSize(32).setColor('#000000');
             this.own.coronaPointText.setText('CoronaPoint: ' + this.own.coronaPoint);
         }
@@ -487,7 +592,6 @@ class GameScene extends Phaser.Scene {
             prefix: `chara/teki_${pattern}_`, suffix: '.png'
         });
         context.anims.create({ key: 'enemyWalk' + pattern, frames: frames, frameRate: 10, repeat: -1 });
-        console.log('enemyWalk' + pattern);
     }
 
     makeStayFrameNames(context, pattern) {
@@ -496,7 +600,6 @@ class GameScene extends Phaser.Scene {
             prefix: `chara/teki_${pattern}_`, suffix: '.png'
         });
         context.anims.create({ key: 'enemyStay' + pattern, frames: frames, frameRate: 10, repeat: -1 });
-        console.log('enemyStay' + pattern);
     }
 
     makeSneezeFrameNames(context, pattern, coronaPattern) { // coronaPattern: 1, 2
@@ -506,11 +609,9 @@ class GameScene extends Phaser.Scene {
             prefix: `chara/teki_e_${pattern}`, suffix: '.png'
         });
         context.anims.create({ key: 'enemySneeze' + pattern + coronaPattern, frames: frames, frameRate: 10, repeat: -1 });
-        console.log('enemySneeze' + pattern + coronaPattern);
     }
 
     update (time, delta) {
-        // console.log('From GameScene Update');
         // スワイプの動き（スマホ用）
         let pointer = this.input.activePointer;
         if (pointer.isDown && !this.own.pointerState.isDowning) {
@@ -532,23 +633,19 @@ class GameScene extends Phaser.Scene {
             {
                 this.own.player.setVelocityX(-this.own.playerSpeed);
                 this.own.player.flipX = true;
-                // this.own.player.anims.play('walk', true);
             }
             if (this.own.cursors.right.isDown || isRightDown)
             {
                 this.own.player.setVelocityX(this.own.playerSpeed);
                 this.own.player.flipX = false;
-                // this.own.player.anims.play('walk', true);
             }
             if (this.own.cursors.up.isDown || isUpDown)
             {
                 this.own.player.setVelocityY(-this.own.playerSpeed);
-                // this.own.player.anims.play('walk', true);
             }
             if (this.own.cursors.down.isDown || isDownDown)
             {
                 this.own.player.setVelocityY(this.own.playerSpeed);
-                // this.own.player.anims.play('walk', true);
             }
             if ((!this.own.cursors.left.isDown && !this.own.cursors.right.isDown && !this.own.cursors.up.isDown && !this.own.cursors.down.isDown) && !(isLeftDown || isRightDown || isUpDown || isDownDown)) {
                 this.own.player.anims.play(this.own.player.own.hasMask ? 'maskStay' : 'stay', true);
@@ -563,24 +660,19 @@ class GameScene extends Phaser.Scene {
         for (var i = 0; i < enemyParameters.length; i++) {
             this.own.enemies[i].setVelocity(0);
             let coronaPattern = this.own.isEasy ? (this.own.enemies[i].own.isCorona ? 2 : 1) : 1;
+            let move = this.own.enemies[i].own.move;
+            let moveSpeed = this.own.enemies[i].own.speed / 100;
             if (this.own.enemies[i].own.sneezeRemainTime <= 0) { // 敵キャラくしゃみ中は動かない
                 switch (this.own.enemies[i].own.moveType) {
                 case 0:
-                    this.own.enemies[i].setVelocityX(Math.cos(this.own.move) * this.own.worldHalfDistanceY);
-                    // this.own.enemies[i].x = this.own.enemyInitY + Math.cos(this.own.move) * this.own.worldHalfDistanceY;
-                    this.own.enemies[i].setVelocityY(Math.sin(this.own.move) * this.own.worldHalfDistanceY);
-                    // console.log(Math.sin(this.own.move))
-                    // this.own.enemies[i].y = this.own.enemies[i].own.enemyInitX + Math.sin(this.own.move) * this.own.worldHalfDistanceY;
+                    this.own.enemies[i].setVelocityX(Math.cos(move) * this.own.worldHalfDistanceY * moveSpeed);
+                    this.own.enemies[i].setVelocityY(Math.sin(move) * this.own.worldHalfDistanceY * moveSpeed) ;
                     break;
                 case 1:
-                    this.own.enemies[i].setVelocityX(Math.sin(-this.own.move) * this.own.worldHalfDistanceY);
-                    // this.own.enemies[i].x = this.own.enemyInitY + Math.sin(-this.own.move) * this.own.worldHalfDistanceY;
-                    this.own.enemies[i].setVelocityY(Math.cos(-this.own.move) * this.own.worldHalfDistanceY);
-                    // console.log(Math.cos(-this.own.move))
-                    // this.own.enemies[i].y = this.own.enemies[i].own.enemyInitX + Math.cos(-this.own.move) * this.own.worldHalfDistanceY;
+                    this.own.enemies[i].setVelocityX(Math.sin(-move) * this.own.worldHalfDistanceY * moveSpeed);
+                    this.own.enemies[i].setVelocityY(Math.cos(-move) * this.own.worldHalfDistanceY * moveSpeed);
                 case 2:
-                    this.own.enemies[i].setVelocityY(Math.sin(this.own.move) * (this.own.worldHalfDistanceY));
-                    // this.own.enemies[i].y = this.own.enemies[i].own.enemyInitX + Math.sin(this.own.move) * (this.own.worldHalfDistanceY - 20);
+                    this.own.enemies[i].setVelocityY(Math.sin(move) * (this.own.worldHalfDistanceY * moveSpeed));
                     break;
                 case 3:
                     if (this.own.enemies[i].flipX) {
@@ -600,7 +692,7 @@ class GameScene extends Phaser.Scene {
                     }
                     break;
                 default:
-                    console.log('Sorry, we are out of ' + i + '.');
+                    if (isGameDebug) console.log('Sorry, we are out of ' + i + '.');
                 }
 
                 // 敵キャラ振り向き判定
@@ -613,11 +705,11 @@ class GameScene extends Phaser.Scene {
                 if (this.own.enemies[i].body.velocity.x === 0 && this.own.enemies[i].body.velocity.y === 0) {
                     this.own.enemies[i].anims.play(`enemyStay${this.own.enemies[i].own.charaType}${coronaPattern}`, true);
                 } else {
-                    console.log(`enemyWalk${this.own.enemies[i].own.charaType}${coronaPattern}`);
                     this.own.enemies[i].anims.play(`enemyWalk${this.own.enemies[i].own.charaType}${coronaPattern}`, true);
                 }
                 // 敵キャラdepth更新
                 this.own.enemies[i].depth = this.own.enemies[i].y;
+                this.own.enemies[i].own.move += 0.01 * moveSpeed;
             }
 
             // playerとの当たり判定
@@ -629,7 +721,6 @@ class GameScene extends Phaser.Scene {
                 }
                 // 敵キャラくしゃみ当たり判定
                 if (this.own.enemies[i].own.sneezeRemainTime > 0) {
-                    // console.log(`Pothis.own.enemies[i] ${i} ${this.own.enemies[i].own.sneezeRemainTime} ${this.own.enemies[i].x} ${this.own.enemies[i].y} ${this.own.enemies[i].own.sneezeRange.x} ${this.own.enemies[i].own.sneezeRange.y}`)
                     this.own.enemies[i].own.sneezeRemainTime -= 1;
                     if (this.own.enemies[i].own.sneezeRange) {
                         if (!this.own.enemies[i].own.isInfected && this.own.enemies[i].own.sneezeRange.x <= this.own.player.x && this.own.player.x <= this.own.enemies[i].own.sneezeRange.x + this.own.enemies[i].own.sneezeRange.width && this.own.enemies[i].own.sneezeRange.y <= this.own.player.y && this.own.player.y <= this.own.enemies[i].own.sneezeRange.y + this.own.enemies[i].own.sneezeRange.height) {
@@ -660,8 +751,8 @@ class GameScene extends Phaser.Scene {
             }
         }
 
-        // デバッグテキスト
-        if (this.own.debug) {
+        // コロナポイント表示
+        if (this.own.isEasy) {
             this.own.coronaPointText.setText('CoronaPoint: ' + this.own.coronaPoint);
         }
 
@@ -673,11 +764,10 @@ class GameScene extends Phaser.Scene {
         if (this.own.remainTime <= 0 && !this.own.isGoalOpened) {
             this.own.isGoalOpened = true;
         } 
-        this.own.move += 0.01;
     }
 
     hitGoal() {
-        console.log('get Goal!!!');
+        if (isGameDebug) console.log('get Goal!!!');
         if (!this.own.isGoalOpened) return; // Goal条件を満たしていないと何もしない
         if (this.isDismissed) return; // Goal済みなら何もしない
         this.isDismissed = true;
@@ -687,18 +777,14 @@ class GameScene extends Phaser.Scene {
     }
 
     hitMask() {
-        console.log('get Mask!!!');
+        if (isGameDebug) console.log('get Mask!!!');
         if (this.own.player.own.hasMask) return; // マスクを既に持っていれば何もしない
         this.own.player.own.hasMask = true;
-        this.own.player.anims.play('setMask');
-        this.own.player.own.isStop = true;
         this.own.coronaPoint -= 1;
-
-        this.own.player.once('animationcomplete', this.setAnimComplete, this);
     }
 
     hitWash() {
-        console.log('get Wash!!!');
+        if (isGameDebug) console.log('get Wash!!!');
         if (!this.own.player.own.hasWashed) {
             this.own.coronaPoint -= 1;
         } // 既に手洗いをしたことがあればポイントは減らさない
@@ -710,7 +796,7 @@ class GameScene extends Phaser.Scene {
     }
 
     hitDrinking() {
-        console.log('get Drink!!!');
+        if (isGameDebug) console.log('get Drink!!!');
         if (!this.own.player.own.hasDrinking) {
             this.own.coronaPoint += 1;
         } // 既にBarに着いたことがあればポイントは増やさない
@@ -725,11 +811,6 @@ class GameScene extends Phaser.Scene {
     setAnimComplete() {
         this.own.player.own.isStop = false;
     }
-
-    // shutdown() {
-    //     console.log('From GameScene shutdown');
-    //     this.game.anims.removeAllListeners();
-    // }
 }
 
 class ResultScene extends Phaser.Scene {
@@ -753,7 +834,6 @@ class ResultScene extends Phaser.Scene {
 
     create (data)
     {
-        // console.log('From ResultScene Create');
         this.coronaPoint = data.coronaPoint;
         if (this.coronaPoint <= 0) {
             let background = this.add.image(400, 300, 'happy_end').setScale(1.1);
@@ -770,7 +850,6 @@ class ResultScene extends Phaser.Scene {
     }
 
     update () {
-        // console.log('From ResultScene Update');
         if (this.isDismissed) return;
         if (!this.isOpened) {
             this.laterRemainTime -= 1;
@@ -811,7 +890,6 @@ class ResultScene extends Phaser.Scene {
         physics: {
             default: 'arcade',
             arcade: {
-                // gravity: { y: 300 },
                 debug: false
             }
         },
