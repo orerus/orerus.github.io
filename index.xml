@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Orerus blog</title><link>https://orerus.github.io/</link><description>Recent content on Orerus blog</description><generator>Hugo -- gohugo.io</generator><language>ja-JA</language><lastBuildDate>Thu, 09 May 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://orerus.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>About</title><link>https://orerus.github.io/about/</link><pubDate>Mon, 20 Dec 2021 00:00:00 +0000</pubDate><guid>https://orerus.github.io/about/</guid><description>Hello World!! どうも、 orerus と申します。 主に Android/iOS アプリ開発を生業としています。 元々はWeb/DB系エンジニアでした。 適当に記事を書いていく予定です。 SNS系</description><content>&lt;h1 id="hello-world">Hello World!!&lt;/h1>
+&lt;p>どうも、 orerus と申します。&lt;/p>
+&lt;p>主に Android/iOS アプリ開発を生業としています。&lt;/p>
+&lt;p>元々はWeb/DB系エンジニアでした。&lt;/p>
+&lt;p>適当に記事を書いていく予定です。&lt;/p>
+&lt;p>SNS系は苦手な為更新頻度は低いですが、何かありましたら気軽にTwitterなどでDMください！&lt;/p>
+&lt;hr>
+&lt;p>&lt;a class="twitter-timeline" data-width="500" data-height="1000" data-theme="dark" href="https://twitter.com/orerus?ref_src=twsrc%5Etfw">Tweets by orerus&lt;/a> &lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>&lt;/p></content></item><item><title>開発をお手伝いさせていただいたプロットマッピングカメラアプリ「CALINT」がリリースされました</title><link>https://orerus.github.io/posts/introduce_calint/</link><pubDate>Thu, 09 May 2019 00:00:00 +0000</pubDate><guid>https://orerus.github.io/posts/introduce_calint/</guid><description>CALINTとは CALINT（カリント）とは、株式会社moegiよりリリースされた、いわゆるプロットマッピングカメラアプリです。 ※現在はiO</description><content>&lt;h2 id="calintとは">CALINTとは&lt;/h2>
+&lt;p>CALINT（カリント）とは、株式会社moegiよりリリースされた、いわゆるプロットマッピングカメラアプリです。&lt;br>
+※現在はiOSのみリリース済み&lt;/p>
+&lt;p>カメラで撮影を行いながら、同時に地図や速度、カメラの向きや標高などを記録できます。&lt;br>
+具体的には、mp4、csv、gpxファイルを同時に記録できるアプリになります。&lt;/p>
+&lt;p>詳しくは、以下の公式サイト、および使用イメージを是非ご覧ください！&lt;/p>
+&lt;p>公式サイト: &lt;a href="https://moegi.jp/calint/">CALINT&lt;/a>&lt;/p>
+&lt;h2 id="使用イメージ">使用イメージ&lt;/h2>
+&lt;div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+&lt;iframe src="https://www.youtube.com/embed/jFGsV8vfEAc" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="CALINT 紹介動画">&lt;/iframe>
+&lt;/div>
+&lt;p>こちらの動画を見ていただければおおよそのアプリのイメージが掴んでいただけるかと思います！&lt;br>
+ハイキングやドライブ、電車内・飛行機内からの撮影等、様々なシーンでご利用いただけるかと(^^)&lt;/p>
+&lt;h2 id="開発時の話">開発時の話&lt;/h2>
+&lt;p>諸事情により内部の作りの詳細についてはあまり記述できませんが、せっかくなので開発時の苦労話等を少しご紹介します&lt;/p>
+&lt;h3 id="アーキテクチャについて">アーキテクチャについて&lt;/h3>
+&lt;p>今回は&lt;a href="https://github.com/ReactorKit/ReactorKit">ReactorKit&lt;/a>を用いたFluxアーキテクチャを採用しました。&lt;/p>
+&lt;p>理由としては、アプリの特性上、様々なトリガー（ユーザーのタップや、GPSのコールバック、ファイル保存時のコールバック等）で処理が走る為、トリガーに関わらず処理のフローを一方向に限定し、各処理の記述位置を明確にしてコードをシンプルにし、バグを減らしたかった為です。&lt;br>
+（ただでさえ録画周りで原因不明なクラッシュが発生しやすい・・・）&lt;/p>
+&lt;p>また、非同期での処理を前提とした構成にすることで、様々なトリガーによって処理が走った場合でも、自然とユーザー操作を邪魔しない（UIスレッドをブロックしない）作りにするという狙いもありました。&lt;/p>
+&lt;h3 id="iosでの録画について">iOSでの録画について&lt;/h3>
+&lt;p>iOSでのカメラを用いた録画方法については、Qiita等にいくつかの良質な記事が挙がっています。&lt;/p>
+&lt;p>ただし、今回の要件として、カメラに映った映像をそのまま録画するのではなく、画面上に表示している地図や速度計等のViewも同時に記録する必要がありました。&lt;/p>
+&lt;p>その場合、以下の２通りの録画方法を検討しました。&lt;/p>
+&lt;ol>
+&lt;li>カメラでキャプチャした映像にViewを合成し記録する&lt;/li>
+&lt;li>デバイスに表示されているViewを丸ごと記録する&lt;/li>
+&lt;/ol>
+&lt;h4 id="1-カメラでキャプチャした映像にviewを合成し記録する">1. カメラでキャプチャした映像にViewを合成し記録する&lt;/h4>
+&lt;p>こちらの方法についてまず試したところ、合成すべきViewの内容（地図や速度）が常に変化するものである為、毎フレーム合成し直す必要があり、処理が１フレームの時間内に収まらず、録画ファイルが明らかにコマ落ちしているような品質になってしまい、断念しました。&lt;br>
+ただし、こちらの方法ではiOSが備えているカメラの手ぶれ補正機能を使えるという大きなメリットがある為、撮影内容のクオリティを求める場合はこちらの方法をお勧めします。&lt;/p>
+&lt;h4 id="2-デバイスに表示されているviewを丸ごと記録する">2. デバイスに表示されているViewを丸ごと記録する&lt;/h4>
+&lt;p>こちらは、iOS11から搭載されたスクリーンレコーディングとほぼ同じイメージです。（&lt;a href="https://gori.me/ios/ios11/96712">参考記事&lt;/a>）&lt;/p>
+&lt;p>そして、嬉しいことに単純に撮影するだけであれば、&lt;a href="https://developer.apple.com/documentation/replaykit">ReplayKit&lt;/a>という上記のスクリーンレコーディングがアプリ内からできるツールが標準で用意されています。 （&lt;a href="https://qiita.com/akira108/items/babf68a3e7b37f3ca379">参考記事&lt;/a>）&lt;/p>
+&lt;p>ただし、上記参考記事のようなシンプルな使い方を行った場合、撮影終了時に &lt;code>RPPreviewController&lt;/code> を呼び出してユーザーに保存またはシェアさせる、といったフローになる（プログラム側で勝手に保存できない）為、ReplayKitで撮影し渡されたbufferを &lt;code>AVAssetWriter&lt;/code> を用いて毎フレーム記録する、という方法を取っています。&lt;/p>
+&lt;h3 id="replaykitを使った撮影">ReplayKitを使った撮影&lt;/h3>
+&lt;p>これが、様々な要因でクラッシュします・・・&lt;br>
+また、クラッシュした際に出てくるメッセージが &lt;code>Error Domain=com.apple.ReplayKit.RPRecordingErrorDomain Code=-5807 &amp;quot;Recording interrupted by multitasking and content resizing&amp;quot;&lt;/code> といったよく分からないものばかりです。&lt;br>
+エラーコードっぽいものが出てますが、このコードの詳細についてはAppleのドキュメントに一切記載が無い為、非常に苦労しました・・・&lt;/p>
+&lt;h3 id="iosシミュレータが使えない">iOSシミュレータが使えない&lt;/h3>
+&lt;p>カメラ機能をフルに使ったアプリである為、シミュレータでの開発がほぼできず、 iPhone X 等の対応を実機でやらざるを得ず、こちらもまた苦労しました・・・&lt;/p>
+&lt;h2 id="さいごに">さいごに&lt;/h2>
+&lt;p>とりとめのない紹介になってしまいましたが、アプリ内容や開発話等、何かありましたらTwitter等で気軽に呼びかけていただければと思います！&lt;/p></content></item></channel></rss>
