@@ -4,6 +4,7 @@ title = 'My New Hugo Site'
 theme = "terminal"
 languageCode = "ja-JA"
 hasCJKLanguage = "true"
+googleAnalytics = "G-PKF7KQEXQB"
 
 [params]
   # dir name of your main content (default is `content/posts`).
