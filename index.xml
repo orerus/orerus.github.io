@@ -68,7 +68,17 @@
 &lt;/tr>
 &lt;/table>
 &lt;h2 id="連絡先">連絡先&lt;/h2>
-&lt;p>アプリに関する問い合わせは &lt;a href="https://twitter.com/orerus">作者のTwitter&lt;/a> 宛にDMをいただくか、またはこちらのメールアドレス 「raisuta+direction_checker★gmail.com」（★を＠に変えて） へメールにてご連絡ください。&lt;/p></content></item><item><title>About</title><link>https://orerus.github.io/about/</link><pubDate>Mon, 20 Dec 2021 00:00:00 +0000</pubDate><guid>https://orerus.github.io/about/</guid><description>Hello World!! どうも、 orerus と申します。 主に Android/iOS アプリ開発を生業としています。 元々はWeb/DB系エンジニアでした。 適当に記事を書いていく予定です。 SNS系</description><content>&lt;h1 id="hello-world">Hello World!!&lt;/h1>
+&lt;p>アプリに関する問い合わせは &lt;a href="https://twitter.com/orerus">作者のTwitter&lt;/a> 宛にDMをいただくか、またはこちらのメールアドレス 「raisuta+direction_checker★gmail.com」（★を＠に変えて） へメールにてご連絡ください。&lt;/p></content></item><item><title>ネーブルの吉方位 プライバシーポリシー</title><link>https://orerus.github.io/privacypolicy_app_direction_checker/</link><pubDate>Tue, 19 Apr 2022 00:00:00 +0000</pubDate><guid>https://orerus.github.io/privacypolicy_app_direction_checker/</guid><description>プライバシーポリシー 広告について 本アプリでは、広告配信ツールとしてAdMob(Google Inc.)を使用しており、AdMobがご利用者の情</description><content>&lt;h1 id="プライバシーポリシー">プライバシーポリシー&lt;/h1>
+&lt;h2 id="広告について">広告について&lt;/h2>
+&lt;p>本アプリでは、広告配信ツールとしてAdMob(Google Inc.)を使用しており、AdMobがご利用者の情報を自動取得する場合がございます。&lt;/p>
+&lt;p>取得する情報、利用目的、第三者への提供等につきましては、以下の広告配信事業者のアプリケーション・プライバシーポリシーのリンクよりご確認ください。&lt;/p>
+&lt;p>Google 広告に関するポリシー&lt;br>
+&lt;a href="https://policies.google.com/technologies/ads?hl=ja">https://policies.google.com/technologies/ads?hl=ja&lt;/a>&lt;/p>
+&lt;h2 id="利用状況解析ついて">利用状況解析ついて&lt;/h2>
+&lt;p>本アプリでは、今後の開発の参考とするため、アプリの利用状況データを収集するツールとしてFirebase(Google Inc.)を使用しており、Firebaseがご利用者の情報を自動取得する場合がございます。&lt;/p>
+&lt;p>取得する情報、利用目的、第三者への提供等につきましては、以下のGoogleプライバシーポリシーのリンクよりご確認ください。&lt;/p>
+&lt;p>Google プライバシーポリシー&lt;br>
+&lt;a href="https://policies.google.com/privacy?hl=ja">https://policies.google.com/privacy?hl=ja&lt;/a>&lt;/p></content></item><item><title>About</title><link>https://orerus.github.io/about/</link><pubDate>Mon, 20 Dec 2021 00:00:00 +0000</pubDate><guid>https://orerus.github.io/about/</guid><description>Hello World!! どうも、 orerus と申します。 主に Android/iOS アプリ開発を生業としています。 元々はWeb/DB系エンジニアでした。 適当に記事を書いていく予定です。 SNS系</description><content>&lt;h1 id="hello-world">Hello World!!&lt;/h1>
 &lt;p>どうも、 orerus と申します。&lt;/p>
 &lt;p>主に Android/iOS アプリ開発を生業としています。&lt;/p>
 &lt;p>元々はWeb/DB系エンジニアでした。&lt;/p>
