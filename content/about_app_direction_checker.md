@@ -2,6 +2,7 @@
 title = "ネーブルの吉方位 サポートページ"
 date = "2022-04-19"
 author = "orerus"
+cover = "img/nerble_icon.png"
 +++
 
 # サポートページ
