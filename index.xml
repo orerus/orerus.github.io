@@ -1,4 +1,74 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Orerus blog</title><link>https://orerus.github.io/</link><description>Recent content on Orerus blog</description><generator>Hugo -- gohugo.io</generator><language>ja-JA</language><lastBuildDate>Thu, 09 May 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://orerus.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>About</title><link>https://orerus.github.io/about/</link><pubDate>Mon, 20 Dec 2021 00:00:00 +0000</pubDate><guid>https://orerus.github.io/about/</guid><description>Hello World!! どうも、 orerus と申します。 主に Android/iOS アプリ開発を生業としています。 元々はWeb/DB系エンジニアでした。 適当に記事を書いていく予定です。 SNS系</description><content>&lt;h1 id="hello-world">Hello World!!&lt;/h1>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Orerus blog</title><link>https://orerus.github.io/</link><description>Recent content on Orerus blog</description><generator>Hugo -- gohugo.io</generator><language>ja-JA</language><lastBuildDate>Thu, 09 May 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://orerus.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>ネーブルの吉方位 サポートページ</title><link>https://orerus.github.io/about_app_direction_checker/</link><pubDate>Tue, 19 Apr 2022 00:00:00 +0000</pubDate><guid>https://orerus.github.io/about_app_direction_checker/</guid><description>サポートページ こちらは「ネーブルの吉方位」アプリのサポートページです。 アプリに関する問い合わせは 作者のTwitter 宛にDMをいただくか、ま</description><content>&lt;h1 id="サポートページ">サポートページ&lt;/h1>
+&lt;p>こちらは「ネーブルの吉方位」アプリのサポートページです。&lt;/p>
+&lt;p>アプリに関する問い合わせは &lt;a href="https://twitter.com/orerus">作者のTwitter&lt;/a> 宛にDMをいただくか、またはこちらのメールアドレス 「raisuta+direction_checker★gmail.com」（★を＠に変えて） へメールにてご連絡ください。&lt;/p>
+&lt;h2 id="目次">目次&lt;/h2>
+&lt;ul>
+&lt;li>&lt;a href="#%E3%82%B5%E3%83%9D%E3%83%BC%E3%83%88%E3%83%9A%E3%83%BC%E3%82%B8">サポートページ&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#%E7%9B%AE%E6%AC%A1">目次&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#%E3%81%93%E3%81%AE%E3%82%A2%E3%83%97%E3%83%AA%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6">このアプリについて&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#%E8%87%AA%E5%88%86%E3%81%AE%E4%BD%8D%E7%BD%AE%E3%81%AE%E5%A4%89%E6%9B%B4%E3%81%AE%E4%BB%95%E6%96%B9">自分の位置の変更の仕方&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#%E6%96%B9%E4%BD%8D%E3%81%AE%E5%A4%89%E6%9B%B4%E3%81%AE%E4%BB%95%E6%96%B9">方位の変更の仕方&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#%E6%96%BD%E8%A8%AD%E3%81%AE%E6%A4%9C%E7%B4%A2%E6%96%B9%E6%B3%95">施設の検索方法&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#%E9%80%A3%E7%B5%A1%E5%85%88">連絡先&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="このアプリについて">このアプリについて&lt;/h2>
+&lt;p>吉方位を好きな位置から吉方位を調べることができるアプリです。
+また、施設名で検索し、吉方位の中に含まれているかを確認することができます。&lt;/p>
+&lt;p>自身の位置は現在地ボタンを押すか、現在地のピンを長押し後ドラッグで移動させることができます。&lt;/p>
+&lt;h2 id="自分の位置の変更の仕方">自分の位置の変更の仕方&lt;/h2>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>方法1. 現在地ボタンを押す&lt;/th>
+&lt;th>方法2. ピンを直接動かす&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>
+&lt;img src="https://orerus.github.io/img/nable_self_position_1.png" alt="自分の位置移動手順1" class="center" style="border-radius: 8px;" />
+&lt;/td>
+&lt;td>
+&lt;img src="https://orerus.github.io/img/nable_self_position_2.png" alt="自分の位置移動手順2" class="center" style="border-radius: 8px;" />
+&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h2 id="方位の変更の仕方">方位の変更の仕方&lt;/h2>
+&lt;table>
+&lt;tr>
+&lt;td>
+&lt;img src="https://orerus.github.io/img/nable_houi_1.png" alt="方位変更手順1" class="center" style="border-radius: 8px;" />
+&lt;/td>
+&lt;td>
+&lt;img src="https://orerus.github.io/img/nable_houi_2.png" alt="方位変更手順2" class="center" style="border-radius: 8px;" />
+&lt;/td>
+&lt;/tr>
+&lt;/table>
+&lt;h2 id="施設の検索方法">施設の検索方法&lt;/h2>
+&lt;table>
+&lt;tr>
+&lt;td>
+&lt;img src="https://orerus.github.io/img/nable_search_1.png" alt="施設検索手順1" class="center" style="border-radius: 8px;" />
+&lt;/td>
+&lt;td>
+&lt;img src="https://orerus.github.io/img/nable_search_2.png" alt="施設検索手順2" class="center" style="border-radius: 8px;" />
+&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>
+&lt;img src="https://orerus.github.io/img/nable_search_3.png" alt="施設検索手順3" class="center" style="border-radius: 8px;" />
+&lt;/td>
+&lt;td>
+&lt;img src="https://orerus.github.io/img/nable_search_4.png" alt="施設検索手順4" class="center" style="border-radius: 8px;" />
+&lt;/td>
+&lt;/tr>
+&lt;/table>
+&lt;h2 id="連絡先">連絡先&lt;/h2>
+&lt;p>アプリに関する問い合わせは &lt;a href="https://twitter.com/orerus">作者のTwitter&lt;/a> 宛にDMをいただくか、またはこちらのメールアドレス 「raisuta+direction_checker★gmail.com」（★を＠に変えて） へメールにてご連絡ください。&lt;/p></content></item><item><title>About</title><link>https://orerus.github.io/about/</link><pubDate>Mon, 20 Dec 2021 00:00:00 +0000</pubDate><guid>https://orerus.github.io/about/</guid><description>Hello World!! どうも、 orerus と申します。 主に Android/iOS アプリ開発を生業としています。 元々はWeb/DB系エンジニアでした。 適当に記事を書いていく予定です。 SNS系</description><content>&lt;h1 id="hello-world">Hello World!!&lt;/h1>
 &lt;p>どうも、 orerus と申します。&lt;/p>
 &lt;p>主に Android/iOS アプリ開発を生業としています。&lt;/p>
 &lt;p>元々はWeb/DB系エンジニアでした。&lt;/p>
