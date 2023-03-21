@@ -50,8 +50,8 @@ googleAnalytics = "G-PKF7KQEXQB"
   # set Twitter handles for Twitter cards
   # see https://developer.twitter.com/en/docs/tweets/optimize-with-cards/guides/getting-started#card-and-content-attribution
   # do not include @
-  creator = "orerus"
-  site = "orerus"
+  creator = "@orerus"
+  site = "@orerus"
 
 [languages]
   [languages.en]
