@@ -1,4 +1,56 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Orerus blog</title><link>https://orerus.github.io/posts/</link><description>Recent content in Posts on Orerus blog</description><generator>Hugo -- gohugo.io</generator><language>ja-JA</language><lastBuildDate>Thu, 09 May 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://orerus.github.io/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>開発をお手伝いさせていただいたプロットマッピングカメラアプリ「CALINT」がリリースされました</title><link>https://orerus.github.io/posts/introduce_calint/</link><pubDate>Thu, 09 May 2019 00:00:00 +0000</pubDate><guid>https://orerus.github.io/posts/introduce_calint/</guid><description>CALINTとは CALINT（カリント）とは、株式会社moegiよりリリースされた、いわゆるプロットマッピングカメラアプリです。 ※現在はiO</description><content>&lt;h2 id="calintとは">CALINTとは&lt;/h2>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Orerus blog</title><link>https://orerus.github.io/posts/</link><description>Recent content in Posts on Orerus blog</description><generator>Hugo -- gohugo.io</generator><language>ja-JA</language><lastBuildDate>Tue, 21 Mar 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://orerus.github.io/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>flutterでbuildを繰り返していると「File name too long」と出る問題</title><link>https://orerus.github.io/posts/20230321_1/</link><pubDate>Tue, 21 Mar 2023 00:00:00 +0000</pubDate><guid>https://orerus.github.io/posts/20230321_1/</guid><description>flutterでAndroidアプリを繰り返しrunしていると突然コケることがある こんな感じで、突如 File name too long を吐き出して以降コケ続けることが</description><content>&lt;h2 id="flutterでandroidアプリを繰り返しrunしていると突然コケることがある">flutterでAndroidアプリを繰り返しrunしていると突然コケることがある&lt;/h2>
+&lt;p>こんな感じで、突如 &lt;code>File name too long&lt;/code> を吐き出して以降コケ続けることがあります。&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-text" data-lang="text">* What went wrong:
+Execution failed for task &amp;#39;:app:copyFlutterAssetsLocalDebug&amp;#39;.
+&amp;gt; Could not copy file &amp;#39;/hoge/fuga/…/android/app/build/intermediates/flutter/{variant}/flutter_assets/android/app/build/intermediates/merged_assets/{variant}/out/flutter_assets/android/app/build/intermediates/merged_assets/…/piyo&amp;#39; to &amp;#39;/hoge/fuga/…/android/app/build/intermediates/flutter/{variant}/flutter_assets/android/app/build/intermediates/merged_assets/{variant}/out/flutter_assets/android/app/build/intermediates/merged_assets/…/piyo&amp;#39;.
+&amp;gt; /hoge/fuga/…/android/app/build/intermediates/flutter/{variant}/flutter_assets/android/app/build/intermediates/merged_assets/{variant}/out/flutter_assets/android/app/build/intermediates/merged_assets/…/piyo (File name too long)
+* Try:
+Run with --stacktrace option to get the stack trace. Run with --info or --debug option to get more log output. Run with --scan to get full insights.
+* Get more help at https://help.gradle.org
+BUILD FAILED in 1m 48s
+Exception: Gradle task assembleLocalDebug failed with exit code 1
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>手元の環境では &lt;a href="https://chromium.googlesource.com/external/github.com/flutter/flutter/+/refs/tags/v1.12.10/packages/flutter_tools/gradle/flutter.gradle#652">gradle の copyFlutterAssetsTask&lt;/a> のタイミングでコケていました。&lt;/p>
+&lt;h2 id="原因">原因&lt;/h2>
+&lt;p>よくわかりません🙏&lt;br>
+ただ、下記ツイートにあるようにbuild回数を重ねる事にbuildディレクトリが深くなっていっているので、buildの都度ディレクトリが掘られる -&amp;gt; file name too long の流れっぽいことは確かだと思われます。&lt;/p>
+&lt;blockquote class="twitter-tweet">&lt;p lang="ja" dir="ltr">cache削除してやり直した1回目と2回目の結果がこちら。flutter_assets/android 配下がループしてるっぽいけど原因を追う気力が出ぬ &lt;a href="https://t.co/VgVHhMJ7dL">pic.twitter.com/VgVHhMJ7dL&lt;/a>&lt;/p>&amp;mdash; スク (@orerus) &lt;a href="https://twitter.com/orerus/status/1637115808890621952?ref_src=twsrc%5Etfw">March 18, 2023&lt;/a>&lt;/blockquote>
+&lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>
+&lt;h2 id="とりあえずの対応策">とりあえずの対応策&lt;/h2>
+&lt;p>根本原因は分からないので場当たり的な方法になりますが、手っ取り早くやるなら下記コマンドでbuildディレクトリを削除して再度runすればOK。&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">rm -rf android/app/build
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>自分は都度コマンドを叩くのが面倒だった為、AndroidStudioの機能を使って以下のようなシェルスクリプトをbuildの前に実行するようにして凌いでいます。&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">&lt;span style="color:#75715e">#!/bin/bash
+&lt;/span>&lt;span style="color:#75715e">&lt;/span>
+DIR&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#e6db74">&amp;#34;android/app/build/intermediates/flutter/{variant}/flutter_assets/android&amp;#34;&lt;/span>
+&lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#f92672">[&lt;/span> -d &lt;span style="color:#e6db74">&amp;#34;&lt;/span>$DIR&lt;span style="color:#e6db74">&amp;#34;&lt;/span> &lt;span style="color:#f92672">]&lt;/span>; &lt;span style="color:#66d9ef">then&lt;/span>
+rm -rf &lt;span style="color:#e6db74">&amp;#34;&lt;/span>$DIR&lt;span style="color:#e6db74">&amp;#34;&lt;/span>
+&lt;span style="color:#66d9ef">fi&lt;/span>
+DIR&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#e6db74">&amp;#34;android/app/build/intermediates/merged_assets/{variant}/out/flutter_assets/android&amp;#34;&lt;/span>
+&lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#f92672">[&lt;/span> -d &lt;span style="color:#e6db74">&amp;#34;&lt;/span>$DIR&lt;span style="color:#e6db74">&amp;#34;&lt;/span> &lt;span style="color:#f92672">]&lt;/span>; &lt;span style="color:#66d9ef">then&lt;/span>
+rm -rf &lt;span style="color:#e6db74">&amp;#34;&lt;/span>$DIR&lt;span style="color:#e6db74">&amp;#34;&lt;/span>
+&lt;span style="color:#66d9ef">fi&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>※{variant}の部分は各自の環境に読み替えてください&lt;br>
+※とりあえず上の２つのディレクトリを消しておけば大丈夫そうでした&lt;/p>
+&lt;p>一応AndroidStudioの設定手順も&lt;/p>
+&lt;table>
+&lt;tr>
+&lt;td>
+&lt;img src="https://orerus.github.io/img/20230321_1/remove_build_1.png" alt="step1" class="center" style="border-radius: 8px;" />
+&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>
+&lt;img src="https://orerus.github.io/img/20230321_1/remove_build_2.png" alt="step2" class="center" style="border-radius: 8px;" />
+&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>
+&lt;img src="https://orerus.github.io/img/20230321_1/remove_build_3.png" alt="step3" class="center" style="border-radius: 8px;" />
+&lt;/td>
+&lt;/tr>
+&lt;/table>
+&lt;h2 id="さいごに">さいごに&lt;/h2>
+&lt;p>もし根本原因＆解決策がお分かりの方いらっしゃいましたら是非&lt;a href="https://twitter.com/orerus/status/1637114770691346434?s=20">Twitter&lt;/a>の方にDMかリプください🙇‍♂‍&lt;/p></content></item><item><title>開発をお手伝いさせていただいたプロットマッピングカメラアプリ「CALINT」がリリースされました</title><link>https://orerus.github.io/posts/introduce_calint/</link><pubDate>Thu, 09 May 2019 00:00:00 +0000</pubDate><guid>https://orerus.github.io/posts/introduce_calint/</guid><description>CALINTとは CALINT（カリント）とは、株式会社moegiよりリリースされた、いわゆるプロットマッピングカメラアプリです。 ※現在はiO</description><content>&lt;h2 id="calintとは">CALINTとは&lt;/h2>
 &lt;p>CALINT（カリント）とは、株式会社moegiよりリリースされた、いわゆるプロットマッピングカメラアプリです。&lt;br>
 ※現在はiOSのみリリース済み&lt;/p>
 &lt;p>カメラで撮影を行いながら、同時に地図や速度、カメラの向きや標高などを記録できます。&lt;br>
