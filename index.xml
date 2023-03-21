@@ -78,9 +78,10 @@
 &lt;p>本アプリでは、今後の開発の参考とするため、アプリの利用状況データを収集するツールとしてFirebase(Google Inc.)を使用しており、Firebaseがご利用者の情報を自動取得する場合がございます。&lt;/p>
 &lt;p>取得する情報、利用目的、第三者への提供等につきましては、以下のGoogleプライバシーポリシーのリンクよりご確認ください。&lt;/p>
 &lt;p>Google プライバシーポリシー&lt;br>
-&lt;a href="https://policies.google.com/privacy?hl=ja">https://policies.google.com/privacy?hl=ja&lt;/a>&lt;/p></content></item><item><title>About</title><link>https://orerus.github.io/about/</link><pubDate>Mon, 20 Dec 2021 00:00:00 +0000</pubDate><guid>https://orerus.github.io/about/</guid><description>Hello World!! どうも、 orerus と申します。 主に Android/iOS アプリ開発を生業としています。 元々はWeb/DB系エンジニアでした。 適当に記事を書いていく予定です。 SNS系</description><content>&lt;h1 id="hello-world">Hello World!!&lt;/h1>
+&lt;a href="https://policies.google.com/privacy?hl=ja">https://policies.google.com/privacy?hl=ja&lt;/a>&lt;/p></content></item><item><title>About</title><link>https://orerus.github.io/about/</link><pubDate>Mon, 20 Dec 2021 00:00:00 +0000</pubDate><guid>https://orerus.github.io/about/</guid><description>Hello World!! どうも、 orerus と申します。 主に Android/Flutter/iOS アプリ開発を生業としています。 最近は主にAndroid/Flutterメインです。 元々はWeb/DB系エンジ</description><content>&lt;h1 id="hello-world">Hello World!!&lt;/h1>
 &lt;p>どうも、 orerus と申します。&lt;/p>
-&lt;p>主に Android/iOS アプリ開発を生業としています。&lt;/p>
+&lt;p>主に Android/Flutter/iOS アプリ開発を生業としています。&lt;br>
+最近は主にAndroid/Flutterメインです。&lt;/p>
 &lt;p>元々はWeb/DB系エンジニアでした。&lt;/p>
 &lt;p>適当に記事を書いていく予定です。&lt;/p>
 &lt;p>SNS系は苦手な為更新頻度は低いですが、何かありましたら気軽にTwitterなどでDMください！&lt;/p>
