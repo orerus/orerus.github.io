@@ -1,4 +1,110 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Orerus blog</title><link>https://orerus.github.io/</link><description>Recent content on Orerus blog</description><generator>Hugo -- gohugo.io</generator><language>ja-JA</language><lastBuildDate>Tue, 21 Mar 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://orerus.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>flutterでbuildを繰り返していると「File name too long」と出る問題</title><link>https://orerus.github.io/posts/20230321_1/</link><pubDate>Tue, 21 Mar 2023 00:00:00 +0000</pubDate><guid>https://orerus.github.io/posts/20230321_1/</guid><description>flutterでAndroidアプリを繰り返しrunしていると突然コケることがある こんな感じで、突如 File name too long を吐き出して以降コケ続けることが</description><content>&lt;h2 id="flutterでandroidアプリを繰り返しrunしていると突然コケることがある">flutterでAndroidアプリを繰り返しrunしていると突然コケることがある&lt;/h2>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Orerus blog</title><link>https://orerus.github.io/</link><description>Recent content on Orerus blog</description><generator>Hugo -- gohugo.io</generator><language>ja-JA</language><lastBuildDate>Tue, 21 Mar 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://orerus.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Flutter×Firebase Crashlyticsで非致命（non-fatal）エラーを記録する</title><link>https://orerus.github.io/posts/20230321_2/</link><pubDate>Tue, 21 Mar 2023 00:00:00 +0000</pubDate><guid>https://orerus.github.io/posts/20230321_2/</guid><description>この記事は何？ FlutterアプリでのFirebase Crashlyticsの設定方法は公式サイトや先達の方の素晴らしい記事が非常に参考にな</description><content>&lt;h2 id="この記事は何">この記事は何？&lt;/h2>
+&lt;p>FlutterアプリでのFirebase Crashlyticsの設定方法は&lt;a href="https://firebase.google.com/docs/crashlytics/get-started?platform=flutter">公式サイト&lt;/a>や先達の方の素晴らしい記事が非常に参考になりましたが、公式サイトを見ても非致命（non-fatal）エラーに関しての記述が分かりづらかったのでメモしておきます。&lt;/p>
+&lt;h2 id="困ったこと非致命non-fatalエラーが致命fatalエラーとして記録されてしまう">困ったこと：非致命（non-fatal）エラーが致命（fatal）エラーとして記録されてしまう&lt;/h2>
+&lt;p>公式サイトの &lt;code>Get Startd&lt;/code> のページにある記述通りに設定すると非致命（non-fatal）エラーも致命（fatal）エラーとして記録されてしまいました。&lt;/p>
+&lt;p>よく見ると非致命エラーに関しては &lt;a href="https://firebase.google.com/docs/crashlytics/get-started?platform=flutter">&lt;code>Get Startd&lt;/code>&lt;/a> ではなく &lt;a href="https://firebase.google.com/docs/crashlytics/customize-crash-reports?platform=flutter">&lt;code>Customize crash reports&lt;/code>&lt;/a> の方に記載があったのですが、こちらを見ても非同期エラーの非致命エラーについての記載がなく困ってました。&lt;/p>
+&lt;h2 id="解決方法">解決方法&lt;/h2>
+&lt;p>まず結論から記載しておくと、以下のように記述しておけば致命エラー、非致命エラーがきちんと分かれて記録されました。&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-dart" data-lang="dart">Future&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">void&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span> main() &lt;span style="color:#66d9ef">async&lt;/span> {
+WidgetsFlutterBinding.ensureInitialized();
+&lt;span style="color:#66d9ef">await&lt;/span> Firebase.initializeApp(
+options: DefaultFirebaseOptions.currentPlatform,
+);
+FlutterError.onError &lt;span style="color:#f92672">=&lt;/span> (errorDetails) {
+FirebaseCrashlytics.instance.recordFlutterError(errorDetails);
+};
+PlatformDispatcher.instance.onError &lt;span style="color:#f92672">=&lt;/span> (error, stack) {
+FirebaseCrashlytics.instance.recordError(error, stack, fatal: &lt;span style="color:#66d9ef">false&lt;/span>);
+&lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#66d9ef">true&lt;/span>;
+};
+runApp(MyApp());
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>※実際に設定する際は必ず意図通りに動作するか確認ください&lt;/p>
+&lt;h2 id="解説というか補足">解説というか補足&lt;/h2>
+&lt;p>Crashlytics上で記録されるエラーには以下の２種類があります。(AndroidにはANRがありますがここでは省略します)&lt;/p>
+&lt;ol>
+&lt;li>クラッシュを伴う致命的なエラー&lt;/li>
+&lt;li>クラッシュを伴わない非致命的なエラー（補足されない例外）&lt;/li>
+&lt;/ol>
+&lt;p>これらをCrashlytics上で分けて記録するためにはそれ用の設定を行う必要があります。&lt;/p>
+&lt;p>また、Flutter×Firebase Crashlyticsでは同期エラーと非同期エラーで設定が２箇所に分かれます。&lt;/p>
+&lt;h3 id="同期エラーの捕捉">同期エラーの捕捉&lt;/h3>
+&lt;p>&lt;a href="https://firebase.google.com/docs/crashlytics/customize-crash-reports?platform=flutter#report-uncaught-exceptions">公式&lt;/a>にあるように、致命エラーを補足する設定は以下になります。なお、自分の環境では非致命エラーも致命エラーとして記録されました。&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-dart" data-lang="dart"> FlutterError.onError &lt;span style="color:#f92672">=&lt;/span> (errorDetails) {
+FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+};
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>非致命エラー &lt;code>も&lt;/code> 捕捉するには以下の記述に置き換えます。
+こちらで致命、非致命が分かれて記録されるようになりました。&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-dart" data-lang="dart"> FlutterError.onError &lt;span style="color:#f92672">=&lt;/span> (errorDetails) {
+FirebaseCrashlytics.instance.recordFlutterError(errorDetails);
+};
+&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="非同期エラーの捕捉">非同期エラーの捕捉&lt;/h3>
+&lt;p>&lt;a href="https://firebase.google.com/docs/crashlytics/customize-crash-reports?platform=flutter#report-uncaught-exceptions">公式&lt;/a>にあるように、非同期エラー（Flutterフレームワークでキャッチされないエラー）を捕捉する設定は以下になります。
+ただし、こちらも自分の環境では非致命、致命問わず致命エラーとして記録されました。&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-dart" data-lang="dart"> PlatformDispatcher.instance.onError &lt;span style="color:#f92672">=&lt;/span> (error, stack) {
+FirebaseCrashlytics.instance.recordError(error, stack, fatal: &lt;span style="color:#66d9ef">true&lt;/span>);
+&lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#66d9ef">true&lt;/span>;
+};
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>以下に変えると、非同期エラーについても致命、非致命が分かれて記録されるようになりました。&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-dart" data-lang="dart"> PlatformDispatcher.instance.onError &lt;span style="color:#f92672">=&lt;/span> (error, stack) {
+FirebaseCrashlytics.instance.recordError(error, stack, fatal: &lt;span style="color:#66d9ef">false&lt;/span>);
+&lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#66d9ef">true&lt;/span>;
+};
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="確認用widgetのサンプル">確認用Widgetのサンプル&lt;/h2>
+&lt;p>&lt;a href="https://qiita.com/kazutxt/items/a710115f9f9315002e90">先達の方の記事&lt;/a>を参考にさせていただき、そちらに同期/非同期の観点を追加したものになります。&lt;/p>
+&lt;img src="https://orerus.github.io/img/20230321_2/Screenshot.png" alt="step1" class="center" style="border-radius: 8px;width: 300px;" />
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-dart" data-lang="dart">&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">DebugCrashTest&lt;/span> &lt;span style="color:#66d9ef">extends&lt;/span> StatelessWidget {
+&lt;span style="color:#66d9ef">const&lt;/span> DebugCrashTest({Key&lt;span style="color:#f92672">?&lt;/span> key}) &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">super&lt;/span>(key: key);
+&lt;span style="color:#960050;background-color:#1e0010">@&lt;/span>override
+Widget build(BuildContext context) {
+&lt;span style="color:#66d9ef">return&lt;/span> Scaffold(
+appBar: AppBar(
+title: Text(&lt;span style="color:#e6db74">&amp;#34;crash test&amp;#34;&lt;/span>),
+),
+body: Center(
+child: Column(
+mainAxisAlignment: MainAxisAlignment.center,
+children: &lt;span style="color:#f92672">&amp;lt;&lt;/span>Widget&lt;span style="color:#f92672">&amp;gt;&lt;/span>[
+&lt;span style="color:#75715e">// 例外を発生させるボタン 非同期
+&lt;/span>&lt;span style="color:#75715e">&lt;/span> ElevatedButton(
+onPressed: () &lt;span style="color:#66d9ef">async&lt;/span> {
+FirebaseCrashlytics.instance.log(&lt;span style="color:#e6db74">&amp;#39;ExceptionLog async&amp;#39;&lt;/span>);
+&lt;span style="color:#66d9ef">throw&lt;/span> Exception(&lt;span style="color:#e6db74">&amp;#34;MyException&amp;#34;&lt;/span>);
+},
+child: &lt;span style="color:#66d9ef">const&lt;/span> Text(&lt;span style="color:#e6db74">&amp;#39;Throw Error async (non-fatal)&amp;#39;&lt;/span>),
+),
+&lt;span style="color:#75715e">// 例外を発生させるボタン 同期
+&lt;/span>&lt;span style="color:#75715e">&lt;/span> ElevatedButton(
+onPressed: () {
+FirebaseCrashlytics.instance.log(&lt;span style="color:#e6db74">&amp;#39;ExceptionLog sync&amp;#39;&lt;/span>);
+&lt;span style="color:#66d9ef">throw&lt;/span> Exception(&lt;span style="color:#e6db74">&amp;#34;MyException&amp;#34;&lt;/span>);
+},
+child: &lt;span style="color:#66d9ef">const&lt;/span> Text(&lt;span style="color:#e6db74">&amp;#39;Throw Error sync (non-fatal)&amp;#39;&lt;/span>),
+),
+&lt;span style="color:#75715e">// アプリをクラッシュさせるボタン 非同期
+&lt;/span>&lt;span style="color:#75715e">&lt;/span> ElevatedButton(
+onPressed: () &lt;span style="color:#66d9ef">async&lt;/span> {
+FirebaseCrashlytics.instance.log(&lt;span style="color:#e6db74">&amp;#39;CrashLog async&amp;#39;&lt;/span>);
+FirebaseCrashlytics.instance.crash();
+},
+child: &lt;span style="color:#66d9ef">const&lt;/span> Text(&lt;span style="color:#e6db74">&amp;#39;Crash async (fatal)&amp;#39;&lt;/span>),
+),
+&lt;span style="color:#75715e">// アプリをクラッシュさせるボタン 同期
+&lt;/span>&lt;span style="color:#75715e">&lt;/span> ElevatedButton(
+onPressed: () {
+FirebaseCrashlytics.instance.log(&lt;span style="color:#e6db74">&amp;#39;CrashLog sync&amp;#39;&lt;/span>);
+FirebaseCrashlytics.instance.crash();
+},
+child: &lt;span style="color:#66d9ef">const&lt;/span> Text(&lt;span style="color:#e6db74">&amp;#39;Crash sync (fatal)&amp;#39;&lt;/span>),
+),
+],
+),
+),
+);
+}
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="さいごに">さいごに&lt;/h2>
+&lt;p>記事に不明点や誤りなどありましたら&lt;a href="https://twitter.com/orerus">Twitter&lt;/a>までDMやリプをお願いします🙇‍♂‍&lt;/p></content></item><item><title>Flutterでbuildを繰り返していると「File name too long」と出る問題</title><link>https://orerus.github.io/posts/20230321_1/</link><pubDate>Tue, 21 Mar 2023 00:00:00 +0000</pubDate><guid>https://orerus.github.io/posts/20230321_1/</guid><description>FlutterでAndroidアプリを繰り返しrunしていると突然コケることがある こんな感じで、突如 File name too long を吐き出して以降コケ続けることが</description><content>&lt;h2 id="flutterでandroidアプリを繰り返しrunしていると突然コケることがある">FlutterでAndroidアプリを繰り返しrunしていると突然コケることがある&lt;/h2>
 &lt;p>こんな感じで、突如 &lt;code>File name too long&lt;/code> を吐き出して以降コケ続けることがあります。&lt;/p>
 &lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-text" data-lang="text">* What went wrong:
 Execution failed for task &amp;#39;:app:copyFlutterAssetsLocalDebug&amp;#39;.
@@ -31,7 +137,7 @@ rm -rf &lt;span style="color:#e6db74">&amp;#34;&lt;/span>$DIR&lt;span style="col
 &lt;span style="color:#66d9ef">fi&lt;/span>
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>※{variant}の部分は各自の環境に読み替えてください&lt;br>
 ※とりあえず上の２つのディレクトリを消しておけば大丈夫そうでした&lt;/p>
-&lt;p>一応AndroidStudioの設定手順も&lt;/p>
+&lt;h3 id="一応androidstudioの設定手順も">一応AndroidStudioの設定手順も&lt;/h3>
 &lt;table>
 &lt;tr>
 &lt;td>

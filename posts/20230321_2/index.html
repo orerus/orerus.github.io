@@ -1,0 +1,87 @@
+<!doctype html><html lang=en><head><title>Flutter×Firebase Crashlyticsで非致命（non-fatal）エラーを記録する :: Orerus blog</title><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="非致命（non-fatal）エラーを記録する設定方法"><meta name=keywords content="Flutter,Crashlytics"><meta name=robots content="noodp"><link rel=canonical href=https://orerus.github.io/posts/20230321_2/><script async src="https://www.googletagmanager.com/gtag/js?id=G-PKF7KQEXQB"></script><script>var doNotTrack=!1;if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date),gtag('config','G-PKF7KQEXQB',{anonymize_ip:!1})}</script><link rel=stylesheet href=https://orerus.github.io/assets/style.css><link rel=apple-touch-icon href=https://orerus.github.io/img/apple-touch-icon-192x192.png><link rel="shortcut icon" href=https://orerus.github.io/img/ahiru.svg><meta name=twitter:card content="summary"><meta name=twitter:site content="@orerus"><meta name=twitter:creator content="@orerus"><meta property="og:locale" content="en"><meta property="og:type" content="article"><meta property="og:title" content="Flutter×Firebase Crashlyticsで非致命（non-fatal）エラーを記録する"><meta property="og:description" content="非致命（non-fatal）エラーを記録する設定方法"><meta property="og:url" content="https://orerus.github.io/posts/20230321_2/"><meta property="og:site_name" content="Orerus blog"><meta property="og:image" content="https://orerus.github.io/img/20230321_2/computer_sagi_error.png"><meta property="og:image:width" content="2048"><meta property="og:image:height" content="1024"><meta property="article:published_time" content="2023-03-21 00:00:00 +0000 UTC"></head><body class=orange><div class="container headings--one-size"><header class=header><div class=header__inner><div class=header__logo><a href=/><div class=logo>Orerus blog</div></a></div><div class=menu-trigger>menu</div></div><nav class=menu><ul class="menu__inner menu__inner--desktop"><li><a href=/about>About</a></li></ul><ul class="menu__inner menu__inner--mobile"><li><a href=/about>About</a></li></ul></nav></header><div class=content><div class=post><h1 class=post-title><a href=https://orerus.github.io/posts/20230321_2/>Flutter×Firebase Crashlyticsで非致命（non-fatal）エラーを記録する</a></h1><div class=post-meta><span class=post-date>2023-03-21</span>
+<span class=post-author>:: orerus</span></div><span class=post-tags>#<a href=https://orerus.github.io/tags/flutter/>Flutter</a>&nbsp;
+#<a href=https://orerus.github.io/tags/%E3%82%A2%E3%83%97%E3%83%AA%E9%96%8B%E7%99%BA/>アプリ開発</a>&nbsp;</span>
+<img src=https://orerus.github.io/img/20230321_2/computer_sagi_error.png class=post-cover alt="Flutter×Firebase Crashlyticsで非致命（non-fatal）エラーを記録する" title="Cover Image"><div class=table-of-contents><h2>目次</h2><nav id=TableOfContents><ul><li><a href=#この記事は何>この記事は何？</a></li><li><a href=#困ったこと非致命non-fatalエラーが致命fatalエラーとして記録されてしまう>困ったこと：非致命（non-fatal）エラーが致命（fatal）エラーとして記録されてしまう</a></li><li><a href=#解決方法>解決方法</a></li><li><a href=#解説というか補足>解説というか補足</a><ul><li><a href=#同期エラーの捕捉>同期エラーの捕捉</a></li><li><a href=#非同期エラーの捕捉>非同期エラーの捕捉</a></li></ul></li><li><a href=#確認用widgetのサンプル>確認用Widgetのサンプル</a></li><li><a href=#さいごに>さいごに</a></li></ul></nav></div><div class=post-content><div><h2 id=この記事は何>この記事は何？<a href=#この記事は何 class=hanchor arialabel=Anchor>&#8983;</a></h2><p>FlutterアプリでのFirebase Crashlyticsの設定方法は<a href="https://firebase.google.com/docs/crashlytics/get-started?platform=flutter">公式サイト</a>や先達の方の素晴らしい記事が非常に参考になりましたが、公式サイトを見ても非致命（non-fatal）エラーに関しての記述が分かりづらかったのでメモしておきます。</p><h2 id=困ったこと非致命non-fatalエラーが致命fatalエラーとして記録されてしまう>困ったこと：非致命（non-fatal）エラーが致命（fatal）エラーとして記録されてしまう<a href=#困ったこと非致命non-fatalエラーが致命fatalエラーとして記録されてしまう class=hanchor arialabel=Anchor>&#8983;</a></h2><p>公式サイトの <code>Get Startd</code> のページにある記述通りに設定すると非致命（non-fatal）エラーも致命（fatal）エラーとして記録されてしまいました。</p><p>よく見ると非致命エラーに関しては <a href="https://firebase.google.com/docs/crashlytics/get-started?platform=flutter"><code>Get Startd</code></a> ではなく <a href="https://firebase.google.com/docs/crashlytics/customize-crash-reports?platform=flutter"><code>Customize crash reports</code></a> の方に記載があったのですが、こちらを見ても非同期エラーの非致命エラーについての記載がなく困ってました。</p><h2 id=解決方法>解決方法<a href=#解決方法 class=hanchor arialabel=Anchor>&#8983;</a></h2><p>まず結論から記載しておくと、以下のように記述しておけば致命エラー、非致命エラーがきちんと分かれて記録されました。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-dart data-lang=dart>Future<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>void</span><span style=color:#f92672>&gt;</span> main() <span style=color:#66d9ef>async</span> {
+    WidgetsFlutterBinding.ensureInitialized();
+    <span style=color:#66d9ef>await</span> Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+    );
+    FlutterError.onError <span style=color:#f92672>=</span> (errorDetails) {
+      FirebaseCrashlytics.instance.recordFlutterError(errorDetails);
+    };
+    PlatformDispatcher.instance.onError <span style=color:#f92672>=</span> (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: <span style=color:#66d9ef>false</span>);
+      <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>true</span>;
+    };
+    runApp(MyApp());
+}
+</code></pre></div><p>※実際に設定する際は必ず意図通りに動作するか確認ください</p><h2 id=解説というか補足>解説というか補足<a href=#解説というか補足 class=hanchor arialabel=Anchor>&#8983;</a></h2><p>Crashlytics上で記録されるエラーには以下の２種類があります。(AndroidにはANRがありますがここでは省略します)</p><ol><li>クラッシュを伴う致命的なエラー</li><li>クラッシュを伴わない非致命的なエラー（補足されない例外）</li></ol><p>これらをCrashlytics上で分けて記録するためにはそれ用の設定を行う必要があります。</p><p>また、Flutter×Firebase Crashlyticsでは同期エラーと非同期エラーで設定が２箇所に分かれます。</p><h3 id=同期エラーの捕捉>同期エラーの捕捉<a href=#同期エラーの捕捉 class=hanchor arialabel=Anchor>&#8983;</a></h3><p><a href="https://firebase.google.com/docs/crashlytics/customize-crash-reports?platform=flutter#report-uncaught-exceptions">公式</a>にあるように、致命エラーを補足する設定は以下になります。なお、自分の環境では非致命エラーも致命エラーとして記録されました。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-dart data-lang=dart>    FlutterError.onError <span style=color:#f92672>=</span> (errorDetails) {
+      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+    };
+</code></pre></div><p>非致命エラー <code>も</code> 捕捉するには以下の記述に置き換えます。
+こちらで致命、非致命が分かれて記録されるようになりました。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-dart data-lang=dart>    FlutterError.onError <span style=color:#f92672>=</span> (errorDetails) {
+      FirebaseCrashlytics.instance.recordFlutterError(errorDetails);
+    };
+</code></pre></div><h3 id=非同期エラーの捕捉>非同期エラーの捕捉<a href=#非同期エラーの捕捉 class=hanchor arialabel=Anchor>&#8983;</a></h3><p><a href="https://firebase.google.com/docs/crashlytics/customize-crash-reports?platform=flutter#report-uncaught-exceptions">公式</a>にあるように、非同期エラー（Flutterフレームワークでキャッチされないエラー）を捕捉する設定は以下になります。
+ただし、こちらも自分の環境では非致命、致命問わず致命エラーとして記録されました。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-dart data-lang=dart>    PlatformDispatcher.instance.onError <span style=color:#f92672>=</span> (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: <span style=color:#66d9ef>true</span>);
+      <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>true</span>;
+    };
+</code></pre></div><p>以下に変えると、非同期エラーについても致命、非致命が分かれて記録されるようになりました。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-dart data-lang=dart>    PlatformDispatcher.instance.onError <span style=color:#f92672>=</span> (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: <span style=color:#66d9ef>false</span>);
+      <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>true</span>;
+    };
+</code></pre></div><h2 id=確認用widgetのサンプル>確認用Widgetのサンプル<a href=#確認用widgetのサンプル class=hanchor arialabel=Anchor>&#8983;</a></h2><p><a href=https://qiita.com/kazutxt/items/a710115f9f9315002e90>先達の方の記事</a>を参考にさせていただき、そちらに同期/非同期の観点を追加したものになります。</p><img src=/img/20230321_2/Screenshot.png alt=step1 class=center style=border-radius:8px;width:300px><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-dart data-lang=dart><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>DebugCrashTest</span> <span style=color:#66d9ef>extends</span> StatelessWidget {
+  <span style=color:#66d9ef>const</span> DebugCrashTest({Key<span style=color:#f92672>?</span> key}) <span style=color:#f92672>:</span> <span style=color:#66d9ef>super</span>(key: key);
+
+  <span style=color:#960050;background-color:#1e0010>@</span>override
+  Widget build(BuildContext context) {
+    <span style=color:#66d9ef>return</span> Scaffold(
+      appBar: AppBar(
+        title: Text(<span style=color:#e6db74>&#34;crash test&#34;</span>),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <span style=color:#f92672>&lt;</span>Widget<span style=color:#f92672>&gt;</span>[
+            <span style=color:#75715e>// 例外を発生させるボタン 非同期
+</span><span style=color:#75715e></span>            ElevatedButton(
+              onPressed: () <span style=color:#66d9ef>async</span> {
+                FirebaseCrashlytics.instance.log(<span style=color:#e6db74>&#39;ExceptionLog async&#39;</span>);
+                <span style=color:#66d9ef>throw</span> Exception(<span style=color:#e6db74>&#34;MyException&#34;</span>);
+              },
+              child: <span style=color:#66d9ef>const</span> Text(<span style=color:#e6db74>&#39;Throw Error async (non-fatal)&#39;</span>),
+            ),
+            <span style=color:#75715e>// 例外を発生させるボタン 同期
+</span><span style=color:#75715e></span>            ElevatedButton(
+              onPressed: () {
+                FirebaseCrashlytics.instance.log(<span style=color:#e6db74>&#39;ExceptionLog sync&#39;</span>);
+                <span style=color:#66d9ef>throw</span> Exception(<span style=color:#e6db74>&#34;MyException&#34;</span>);
+              },
+              child: <span style=color:#66d9ef>const</span> Text(<span style=color:#e6db74>&#39;Throw Error sync (non-fatal)&#39;</span>),
+            ),
+            <span style=color:#75715e>// アプリをクラッシュさせるボタン 非同期
+</span><span style=color:#75715e></span>            ElevatedButton(
+              onPressed: () <span style=color:#66d9ef>async</span> {
+                FirebaseCrashlytics.instance.log(<span style=color:#e6db74>&#39;CrashLog async&#39;</span>);
+                FirebaseCrashlytics.instance.crash();
+              },
+              child: <span style=color:#66d9ef>const</span> Text(<span style=color:#e6db74>&#39;Crash async (fatal)&#39;</span>),
+            ),
+            <span style=color:#75715e>// アプリをクラッシュさせるボタン 同期
+</span><span style=color:#75715e></span>            ElevatedButton(
+              onPressed: () {
+                FirebaseCrashlytics.instance.log(<span style=color:#e6db74>&#39;CrashLog sync&#39;</span>);
+                FirebaseCrashlytics.instance.crash();
+              },
+              child: <span style=color:#66d9ef>const</span> Text(<span style=color:#e6db74>&#39;Crash sync (fatal)&#39;</span>),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+</code></pre></div><h2 id=さいごに>さいごに<a href=#さいごに class=hanchor arialabel=Anchor>&#8983;</a></h2><p>記事に不明点や誤りなどありましたら<a href=https://twitter.com/orerus>Twitter</a>までDMやリプをお願いします🙇‍♂‍</p></div></div><div class=pagination><div class=pagination__title><span class=pagination__title-h>Read other posts</span><hr></div><div class=pagination__buttons><span class="button next"><a href=https://orerus.github.io/posts/20230321_1/><span class=button__text>Flutterでbuildを繰り返していると「File name too long」と出る問題</span>
+<span class=button__icon>→</span></a></span></div></div></div></div><footer class=footer><div class=footer__inner><div class=copyright><span>© 2023 Powered by <a href=http://gohugo.io>Hugo</a></span>
+<span>:: Theme made by <a href=https://twitter.com/panr>panr</a></span></div></div></footer><script src=https://orerus.github.io/assets/main.js></script><script src=https://orerus.github.io/assets/prism.js></script></div></body></html>
