@@ -8,7 +8,8 @@ author = "orerus"
 
 どうも、 orerus と申します。
 
-主に Android/iOS アプリ開発を生業としています。
+主に Android/Flutter/iOS アプリ開発を生業としています。  
+最近は主にAndroid/Flutterメインです。
 
 元々はWeb/DB系エンジニアでした。
 
