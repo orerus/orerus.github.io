@@ -2,7 +2,7 @@
 title = "ネーブルのマイレビ プライバシーポリシー"
 date = "2024-05-21"
 author = "orerus"
-authorTwitter = "@orerus" #@をここでつけないとつかない
+authorTwitter = "@orerus"
 +++
 
 # プライバシーポリシー
