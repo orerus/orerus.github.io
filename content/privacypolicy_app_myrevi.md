@@ -1,9 +1,9 @@
-+++
-title = "ネーブルのマイレビ プライバシーポリシー"
-date = "2024-05-21"
-author = "orerus"
-authorTwitter = "@orerus"
-+++
+---
+title: "ネーブルのマイレビ プライバシーポリシー"
+date: 2024-05-21T01:11:57+09:00
+draft: false
+author: "orerus"
+---
 
 # プライバシーポリシー
 
