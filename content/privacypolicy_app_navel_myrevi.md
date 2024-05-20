@@ -3,6 +3,7 @@ title = "ネーブルのマイレビ プライバシーポリシー"
 date = "2024-05-21"
 author = "orerus"
 authorTwitter = "@orerus"
+draft: false
 +++
 
 # プライバシーポリシー
