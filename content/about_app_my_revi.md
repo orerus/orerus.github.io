@@ -56,4 +56,4 @@ author: "orerus"
 
 ## 連絡先
 
-アプリに関する問い合わせは [作者のTwitter](https://twitter.com/orerus) 宛にDMをいただくか、またはこちらのメールアドレス 「raisuta+direction_checker★gmail.com」（★を＠に変えて） へメールにてご連絡ください。
+アプリに関する問い合わせは [作者のTwitter](https://x.com/orerus) 宛にDMをいただくか、またはこちらのメールアドレス 「raisuta+my_revi★gmail.com」（★を＠に変えて） へメールにてご連絡ください。
