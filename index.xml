@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Orerus blog</title><link>https://orerus.github.io/</link><description>Recent content on Orerus blog</description><generator>Hugo -- gohugo.io</generator><language>ja-JA</language><lastBuildDate>Tue, 21 Mar 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://orerus.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>ネーブルのマイレビ プライバシーポリシー</title><link>https://orerus.github.io/privacypolicy_app_myrevi/</link><pubDate>Tue, 21 May 2024 01:11:57 +0900</pubDate><guid>https://orerus.github.io/privacypolicy_app_myrevi/</guid><description>プライバシーポリシー 広告について 本アプリでは、広告配信ツールとしてAdMob(Google Inc.)を使用しており、AdMobがご利用者の情</description><content>&lt;h1 id="プライバシーポリシー">プライバシーポリシー&lt;/h1>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Orerus blog</title><link>https://orerus.github.io/</link><description>Recent content on Orerus blog</description><generator>Hugo -- gohugo.io</generator><language>ja-JA</language><lastBuildDate>Tue, 21 Mar 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://orerus.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>ネーブルのマイレビ プライバシーポリシー及び利用規約</title><link>https://orerus.github.io/privacypolicy_app_myrevi/</link><pubDate>Tue, 21 May 2024 01:11:57 +0900</pubDate><guid>https://orerus.github.io/privacypolicy_app_myrevi/</guid><description>プライバシーポリシー 広告について 本アプリでは、広告配信ツールとしてAdMob(Google Inc.)を使用しており、AdMobがご利用者の情</description><content>&lt;h1 id="プライバシーポリシー">プライバシーポリシー&lt;/h1>
 &lt;h2 id="広告について">広告について&lt;/h2>
 &lt;p>本アプリでは、広告配信ツールとしてAdMob(Google Inc.)を使用しており、AdMobがご利用者の情報を自動取得する場合がございます。&lt;/p>
 &lt;p>取得する情報、利用目的、第三者への提供等につきましては、以下の広告配信事業者のアプリケーション・プライバシーポリシーのリンクよりご確認ください。&lt;/p>
@@ -8,7 +8,19 @@
 &lt;p>本アプリでは、今後の開発の参考とするため、アプリの利用状況データを収集するツールとしてFirebase(Google Inc.)を使用しており、Firebaseがご利用者の情報を自動取得する場合がございます。&lt;/p>
 &lt;p>取得する情報、利用目的、第三者への提供等につきましては、以下のGoogleプライバシーポリシーのリンクよりご確認ください。&lt;/p>
 &lt;p>Google プライバシーポリシー&lt;br>
-&lt;a href="https://policies.google.com/privacy?hl=ja">https://policies.google.com/privacy?hl=ja&lt;/a>&lt;/p></content></item><item><title>Flutter×Firebase Crashlyticsで非致命（non-fatal）エラーを記録する</title><link>https://orerus.github.io/posts/20230321_2/</link><pubDate>Tue, 21 Mar 2023 00:00:00 +0000</pubDate><guid>https://orerus.github.io/posts/20230321_2/</guid><description>この記事は何？ FlutterアプリでのFirebase Crashlyticsの設定方法は公式サイトや先達の方の素晴らしい記事が非常に参考にな</description><content>&lt;h2 id="この記事は何">この記事は何？&lt;/h2>
+&lt;a href="https://policies.google.com/privacy?hl=ja">https://policies.google.com/privacy?hl=ja&lt;/a>&lt;/p>
+&lt;h1 id="利用規約">利用規約&lt;/h1>
+&lt;p>この利用規約（以下「本規約」といいます。）は、ネーブルのマイレビ（以下「本アプリ」といいます。）の利用条件を定めるものです。本アプリを利用することで、利用者は本規約に同意したものとみなされます。
+また、本規約の内容は、必要に応じて変更されることがあります。&lt;/p>
+&lt;h2 id="利用条件">利用条件&lt;/h2>
+&lt;p>本アプリは、個人利用のみを目的としています。商業目的での利用は禁止されています。また、法律に違反する行為や、他者の権利を侵害する行為は禁止されています。&lt;/p>
+&lt;h2 id="責任の制限">責任の制限&lt;/h2>
+&lt;p>ネーブルのマイレビは、提供されるサービスの利用により発生するいかなる損害についても責任を負いません。アプリの不具合やデータの喪失などによる直接的、間接的、特別な損害について、一切の責任を免除されるものとします。本アプリを使用することにより、ユーザーはこの免責条項に同意したものとみなされます。&lt;/p>
+&lt;h2 id="広告とサードパーティのリンク">広告とサードパーティのリンク&lt;/h2>
+&lt;p>本アプリには広告が表示される場合があります。また、サードパーティのリンクが含まれることがありますが、その内容については一切の責任を負いません。&lt;/p>
+&lt;h1 id="更新履歴">更新履歴&lt;/h1>
+&lt;p>2024-05-21 初版&lt;br>
+2024-05-21 追記: 利用規約を追加&lt;/p></content></item><item><title>Flutter×Firebase Crashlyticsで非致命（non-fatal）エラーを記録する</title><link>https://orerus.github.io/posts/20230321_2/</link><pubDate>Tue, 21 Mar 2023 00:00:00 +0000</pubDate><guid>https://orerus.github.io/posts/20230321_2/</guid><description>この記事は何？ FlutterアプリでのFirebase Crashlyticsの設定方法は公式サイトや先達の方の素晴らしい記事が非常に参考にな</description><content>&lt;h2 id="この記事は何">この記事は何？&lt;/h2>
 &lt;p>FlutterアプリでのFirebase Crashlyticsの設定方法は&lt;a href="https://firebase.google.com/docs/crashlytics/get-started?platform=flutter">公式サイト&lt;/a>や先達の方の素晴らしい記事が非常に参考になりましたが、公式サイトを見ても非致命（non-fatal）エラーに関しての記述が分かりづらかったのでメモしておきます。&lt;/p>
 &lt;h2 id="困ったこと非致命non-fatalエラーが致命fatalエラーとして記録されてしまう">困ったこと：非致命（non-fatal）エラーが致命（fatal）エラーとして記録されてしまう&lt;/h2>
 &lt;p>公式サイトの &lt;code>Get Startd&lt;/code> のページにある記述通りに設定すると非致命（non-fatal）エラーも致命（fatal）エラーとして記録されてしまいました。&lt;/p>
