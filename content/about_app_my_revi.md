@@ -13,6 +13,15 @@ author: "orerus"
 
 アプリに関する問い合わせは [作者のTwitter](https://x.com/orerus) 宛にDMをいただくか、またはこちらのメールアドレス 「raisuta+my_revi★gmail.com」（★を＠に変えて） へメールにてご連絡ください。
 
+<p style="text-align: center;">
+  <a href="https://apps.apple.com/jp/app/%E3%83%8D%E3%83%BC%E3%83%96%E3%83%AB%E3%81%AE%E3%83%9E%E3%82%A4%E3%83%AC%E3%83%93/id6502737858" style="display: inline-block; margin-right: 60px;">
+    <img src="/img/app_store_badge.svg" alt="右下のプラスボタンを押す" style="border-radius: 8px;" width="200">
+  </a>
+  <a href="https://play.google.com/store/apps/details?id=net.orerus.myreview.my_review&amp;pcampaignid=web_share&amp;pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1" style="display: inline-block;">
+    <img alt="Google Play で手に入れよう" src="https://play.google.com/intl/en_us/badges/static/images/badges/ja_badge_web_generic.png" style="width: 100%; max-width: 200px;">
+  </a>
+</p>
+
 ## 目次
 
 - [サポートページ](#サポートページ)
